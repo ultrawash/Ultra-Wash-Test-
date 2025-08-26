@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ultra Wash Customer Form</title>
+<title>Ultra Wash Appointment Form</title>
 <style>
 :root {
   --font-family: 'Open Sans', sans-serif;
@@ -243,13 +243,16 @@ input.invalid {
       <label>Pick Up Date & Time</label>
       <div class="note">
         ⏰ Pick Up hours:<br>
-        • Monday–Saturday: 08:30 AM – 04:30 PM<br>
+        • Monday–Friday: 08:30 AM – 04:30 PM<br>
+        • Saturday: 08:30 AM – 11:30 AM<br>
         • Sunday: Closed
       </div>
       <input type="datetime-local" id="pickupDate" name="pickupDate" />
 
       <label>Delivery Location</label>
-      <div class="description">Enter your delivery address or use the same as pick up.</div>
+      <div class="description">
+        Enter your delivery address or use the same as pick up.
+      </div>
       <input type="checkbox" id="sameAsPickup"> <span class="small-checkbox-label">Delivery address same as Pickup</span>
       <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Enter your Address" rows="3" style="display:none;"></textarea>
       <button type="button" id="getDeliveryLocationBtn" style="display:none;">📍 Send My Exact Location</button>
@@ -259,8 +262,8 @@ input.invalid {
         <label>Delivery Date & Time</label>
         <div class="note">
           ⏰ Delivery hours:<br>
-          • Monday–Friday: 08:00 AM – 05:00 PM<br>
-          • Saturday: 08:00 AM – 12:00 PM<br>
+          • Monday–Friday: 08:30 AM – 04:30 PM<br>
+          • Saturday: 08:30 AM – 11:30 AM<br>
           • Sunday: Closed
         </div>
         <input type="datetime-local" id="deliveryDate" name="deliveryDate" />
@@ -298,18 +301,19 @@ const pickupLocationStatus = document.getElementById('pickupLocationStatus');
 const getDeliveryLocationBtn = document.getElementById('getDeliveryLocationBtn');
 const deliveryLocationStatus = document.getElementById('deliveryLocationStatus');
 
+// Show/hide fields based on service
 serviceSelect.addEventListener('change', () => {
   serviceFields.style.display = 'block';
   if(serviceSelect.value === 'Pick Up Only'){
     singleAddressSection.style.display = 'block';
     pickUpDeliverySection.style.display = 'none';
     document.getElementById('singleDateLabel').textContent = 'Pick Up Date & Time';
-    document.getElementById('singleDateNote').innerHTML = `⏰ Pick Up hours:<br>• Monday–Saturday: 08:30 AM – 04:30 PM<br>• Sunday: Closed`;
+    document.getElementById('singleDateNote').innerHTML = `⏰ Pick Up hours:<br>• Monday–Friday: 08:30 AM – 04:30 PM<br>• Saturday: 08:30 AM – 11:30 AM<br>• Sunday: Closed`;
   } else if(serviceSelect.value === 'Delivery Only'){
     singleAddressSection.style.display = 'block';
     pickUpDeliverySection.style.display = 'none';
     document.getElementById('singleDateLabel').textContent = 'Delivery Date & Time';
-    document.getElementById('singleDateNote').innerHTML = `⏰ Delivery hours:<br>• Monday–Friday: 08:00 AM – 05:00 PM<br>• Saturday: 08:00 AM – 12:00 PM<br>• Sunday: Closed`;
+    document.getElementById('singleDateNote').innerHTML = `⏰ Delivery hours:<br>• Monday–Friday: 08:30 AM – 04:30 PM<br>• Saturday: 08:30 AM – 11:30 AM<br>• Sunday: Closed`;
   } else if(serviceSelect.value === 'Pick Up & Delivery'){
     singleAddressSection.style.display = 'none';
     pickUpDeliverySection.style.display = 'block';
@@ -333,16 +337,79 @@ sameAsPickup.addEventListener('change', () => {
   }
 });
 
-// Geolocation functions omitted for brevity (same as original)...
+// ---------------- Geolocation ----------------
+// Single Address
+getLocationBtn.addEventListener('click', () => {
+  if (!navigator.geolocation) {
+    locationStatus.textContent = 'Geolocation not supported by your browser';
+    return;
+  }
+  locationStatus.textContent = 'Locating…';
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+      document.getElementById('singleAddress').value = `Lat: ${latitude}, Lon: ${longitude}`;
+      locationStatus.textContent = 'Location captured!';
+    },
+    () => { locationStatus.textContent = 'Unable to retrieve your location'; }
+  );
+});
 
+// Pick Up Address
+getPickupLocationBtn.addEventListener('click', () => {
+  if (!navigator.geolocation) {
+    pickupLocationStatus.textContent = 'Geolocation not supported by your browser';
+    return;
+  }
+  pickupLocationStatus.textContent = 'Locating…';
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+      document.getElementById('pickupAddress').value = `Lat: ${latitude}, Lon: ${longitude}`;
+      pickupLocationStatus.textContent = 'Location captured!';
+      if(sameAsPickup.checked){
+        document.getElementById('deliveryAddress').value = `Lat: ${latitude}, Lon: ${longitude}`;
+      }
+    },
+    () => { pickupLocationStatus.textContent = 'Unable to retrieve your location'; }
+  );
+});
+
+// Delivery Address
+getDeliveryLocationBtn.addEventListener('click', () => {
+  if (!navigator.geolocation) {
+    deliveryLocationStatus.textContent = 'Geolocation not supported by your browser';
+    return;
+  }
+  deliveryLocationStatus.textContent = 'Locating…';
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+      document.getElementById('deliveryAddress').value = `Lat: ${latitude}, Lon: ${longitude}`;
+      deliveryLocationStatus.textContent = 'Location captured!';
+    },
+    () => { deliveryLocationStatus.textContent = 'Unable to retrieve your location'; }
+  );
+});
+
+// ---------------- Form Submission ----------------
 function closePopup(){document.getElementById('thankYouPopup').style.display='none';}
 
-// Validation helpers
-function isValidDateTime(dtStr,isPickup){
+function isValidDateTime(dtStr, isPickup){
   if(!dtStr) return false;
-  const dt=new Date(dtStr); const day=dt.getDay(); const hour=dt.getHours(); const min=dt.getMinutes();
-  if(isPickup){if(day===0||hour<8||(hour===8&&min<30)||hour>16||(hour===16&&min>30)) return false;}
-  else{if(day>=1&&day<=5){if(hour<8||hour>17) return false;}else if(day===6){if(hour<8||hour>12) return false;}else return false;}
+  const dt=new Date(dtStr); 
+  const day=dt.getDay(); // 0=Sun
+  const hour=dt.getHours(); 
+  const min=dt.getMinutes();
+  if(isPickup){
+    if(day>=1&&day<=5){if(hour<8||(hour===8&&min<30)||hour>16||(hour===16&&min>30)) return false;}
+    else if(day===6){if(hour<8||(hour===8&&min<30)||hour>11||(hour===11&&min>30)) return false;}
+    else return false;
+  } else {
+    if(day>=1&&day<=5){if(hour<8||(hour===8&&min<30)||hour>16||(hour===16&&min>30)) return false;}
+    else if(day===6){if(hour<8||(hour===8&&min<30)||hour>11||(hour===11&&min>30)) return false;}
+    else return false;
+  }
   return true;
 }
 
@@ -353,17 +420,27 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
   const pickupDate=document.getElementById('pickupDate');
   const deliveryDate=document.getElementById('deliveryDate');
 
-  // Reset invalid highlights
   [singleDate,pickupDate,deliveryDate].forEach(f=>{if(f)f.classList.remove('invalid');});
 
-  if(serviceType==='Pick Up Only'&&!isValidDateTime(singleDate.value,true)){alert('Invalid Pick Up date/time. Mon–Sat 08:30–16:30, Sun Closed.'); singleDate.classList.add('invalid'); return;}
-  if(serviceType==='Delivery Only'&&!isValidDateTime(singleDate.value,false)){alert('Invalid Delivery date/time. Mon–Fri 08:00–17:00, Sat 08:00–12:00, Sun Closed.'); singleDate.classList.add('invalid'); return;}
+  if(serviceType==='Pick Up Only'&&!isValidDateTime(singleDate.value,true)){
+    alert('Invalid Pick Up date/time.\n⏰ Mon–Fri: 08:30–16:30\n⏰ Sat: 08:30–11:30\n⏰ Sun: Closed');
+    singleDate.classList.add('invalid'); return;
+  }
+  if(serviceType==='Delivery Only'&&!isValidDateTime(singleDate.value,false)){
+    alert('Invalid Delivery date/time.\n⏰ Mon–Fri: 08:30–16:30\n⏰ Sat: 08:30–11:30\n⏰ Sun: Closed');
+    singleDate.classList.add('invalid'); return;
+  }
   if(serviceType==='Pick Up & Delivery'){
-    if(!isValidDateTime(pickupDate.value,true)){alert('Invalid Pick Up date/time. Mon–Sat 08:30–16:30, Sun Closed.'); pickupDate.classList.add('invalid'); return;}
-    if(!isValidDateTime(deliveryDate.value,false)){alert('Invalid Delivery date/time. Mon–Fri 08:00–17:00, Sat 08:00–12:00, Sun Closed.'); deliveryDate.classList.add('invalid'); return;}
+    if(!isValidDateTime(pickupDate.value,true)){
+      alert('Invalid Pick Up date/time.\n⏰ Mon–Fri: 08:30–16:30\n⏰ Sat: 08:30–11:30\n⏰ Sun: Closed');
+      pickupDate.classList.add('invalid'); return;
+    }
+    if(!isValidDateTime(deliveryDate.value,false)){
+      alert('Invalid Delivery date/time.\n⏰ Mon–Fri: 08:30–16:30\n⏰ Sat: 08:30–11:30\n⏰ Sun: Closed');
+      deliveryDate.classList.add('invalid'); return;
+    }
   }
 
-  // Submit after validation
   const formData=new FormData(this);
   try{
     const response=await fetch(this.action,{method:this.method,body:formData});
@@ -375,8 +452,8 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
       pickUpDeliverySection.style.display='none';
       document.getElementById('deliveryDateSection').style.display='none';
       [locationStatus,pickupLocationStatus,deliveryLocationStatus].forEach(s=>s.textContent='');
-    }else{alert('Error submitting the form. Please try again.');}
-  }catch(err){alert('Error submitting the form. Check your internet connection.'); console.error(err);}
+    } else { alert('Error submitting the form. Please try again.'); }
+  } catch(err){alert('Error submitting the form. Check your internet connection.'); console.error(err);}
 });
 </script>
 </body>
