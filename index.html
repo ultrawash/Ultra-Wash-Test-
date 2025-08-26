@@ -161,8 +161,6 @@ button[type="submit"]:hover { background-color: #e05343; }
         <label id="singleDateLabel">Date & Time</label>
         <div class="note" id="singleDateNote"></div>
         <input type="datetime-local" id="singleDateTime" name="singleDateTime" />
-
-        <!-- Hidden formatted field -->
         <input type="hidden" id="singleDateFormatted" name="singleDateFormatted">
       </div>
 
@@ -174,8 +172,6 @@ button[type="submit"]:hover { background-color: #e05343; }
         <label>Pick Up Date & Time</label>
         <div class="note">⏰ Pick Up hours:<br>• Monday–Friday: 08:30 AM – 04:30 PM<br>• Saturday: 08:30 AM – 11:30 AM<br>• Sunday: Closed</div>
         <input type="datetime-local" id="pickupDate" name="pickupDate" />
-
-        <!-- Hidden formatted field -->
         <input type="hidden" id="pickupDateFormatted" name="pickupDateFormatted">
 
         <label>Delivery Location</label>
@@ -190,8 +186,6 @@ button[type="submit"]:hover { background-color: #e05343; }
           <label>Delivery Date & Time</label>
           <div class="note">⏰ Delivery hours:<br>• Monday–Friday: 08:30 AM – 04:30 PM<br>• Saturday: 08:30 AM – 11:30 AM<br>• Sunday: Closed</div>
           <input type="datetime-local" id="deliveryDate" name="deliveryDate" />
-
-          <!-- Hidden formatted field -->
           <input type="hidden" id="deliveryDateFormatted" name="deliveryDateFormatted">
         </div>
       </div>
@@ -207,6 +201,9 @@ button[type="submit"]:hover { background-color: #e05343; }
 
     <label for="mapLinkWorker">Map Link</label>
     <input id="mapLinkWorker" name="mapLinkWorker" type="text" readonly placeholder="Auto-filled from Customer Data" />
+
+    <label for="serviceWorker">Service Type</label>
+    <input id="serviceWorker" name="serviceWorker" type="text" readonly placeholder="Auto-filled from Customer Data" />
 
     <label for="totalItems">Total Items</label>
     <input id="totalItems" name="totalItems" type="number" min="1" placeholder="Enter total items" />
@@ -314,12 +311,14 @@ async function loadCustomers() {
       option.textContent = `${cust["Name"]} (${cust["Phone"]})`;
       option.dataset.maplink = cust["Map Link / Coordinates"];
       option.dataset.address = cust["Location Address"];
+      option.dataset.service = cust["Service"] || ""; // <-- Service Type
       customerRefSelect.appendChild(option);
     });
 
     customerRefSelect.addEventListener("change", function() {
       const selectedOption = this.options[this.selectedIndex];
       document.getElementById("mapLinkWorker").value = selectedOption.dataset.maplink || "";
+      document.getElementById("serviceWorker").value = selectedOption.dataset.service || ""; // <-- auto-fill service
     });
 
   } catch (err) {
@@ -373,7 +372,8 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
         }
         // Reset to placeholder
         customerSelect.selectedIndex = 0;
-        document.getElementById('mapLinkWorker').value = ""; // clear map link field
+        document.getElementById('mapLinkWorker').value = ""; 
+        document.getElementById('serviceWorker').value = ""; // clear service field
       }
 
     } else { 
