@@ -283,4 +283,97 @@
       pickupLabel.textContent = 'Pickup Location';
       deliverySection.style.display = 'block';
       sameAsPickup.checked = true;
-      deliveryAddress.style.display = 'none
+      deliveryAddress.style.display = 'none';
+      deliveryAddress.required = false;
+      document.getElementById('address').required = true;
+      pickupDate.required = true;
+    }
+  });
+
+  sameAsPickup.addEventListener('change', () => {
+    if (sameAsPickup.checked) {
+      deliveryAddress.style.display = 'none';
+      deliveryAddress.required = false;
+    } else {
+      deliveryAddress.style.display = 'block';
+      deliveryAddress.required = true;
+    }
+  });
+
+  getLocationBtn.addEventListener('click', () => {
+    if (!navigator.geolocation) {
+      locationStatus.textContent = 'Geolocation is not supported by your browser.';
+      return;
+    }
+    locationStatus.textContent = 'Locating… please allow location access.';
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude.toFixed(6);
+        const lng = position.coords.longitude.toFixed(6);
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+        locationStatus.textContent = `Location captured: Latitude ${lat}, Longitude ${lng}`;
+      },
+      (error) => {
+        locationStatus.textContent = `Unable to retrieve location: ${error.message}`;
+      }
+    );
+  });
+
+  function closePopup() {
+    document.getElementById('thankYouPopup').style.display = 'none';
+  }
+
+  document.getElementById('appointmentForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    if (!this.checkValidity()) {
+      alert('Please complete all required fields.');
+      return;
+    }
+
+    const dateValue = pickupDate.value;
+    if (dateValue) {
+      const selectedDate = new Date(dateValue);
+      const day = selectedDate.getDay(); // Sunday=0, Saturday=6
+      const hour = selectedDate.getHours();
+
+      if (day === 0) {
+        alert("🚫 Sorry, we are closed on Sundays.");
+        return;
+      }
+      if (day >= 1 && day <= 5 && (hour < 8 || hour >= 17)) {
+        alert("🚫 On weekdays, appointments must be between 08:00 AM – 05:00 PM.");
+        return;
+      }
+      if (day === 6 && (hour < 8 || hour >= 12)) {
+        alert("🚫 On Saturdays, appointments must be between 08:00 AM – 12:00 PM.");
+        return;
+      }
+    }
+
+    const formData = new FormData(this);
+
+    try {
+      const response = await fetch(this.action, {
+        method: this.method,
+        body: formData,
+      });
+
+      if (response.ok) {
+        document.getElementById('thankYouPopup').style.display = 'flex';
+        this.reset();
+        locationStatus.textContent = '';
+        deliverySection.style.display = 'none';
+      } else {
+        alert('There was an error submitting the form. Please try again.');
+      }
+    } catch (error) {
+      alert('There was an error submitting the form. Please check your internet connection.');
+      console.error(error);
+    }
+  });
+</script>
+
+</body>
+</html>
