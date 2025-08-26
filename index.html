@@ -304,7 +304,7 @@ function closePopup(){ document.getElementById('thankYouPopup').style.display='n
 // Load customer list from Google Apps Script
 async function loadCustomers() {
   try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbwRk-T3xGVFx0PzQSXqJ9piRLk8tXUWzcyDDHOfCxDuhLJ1V2PAPt87LETLZ1ZkbpnZmA/exec");
+    const response = await fetch("https://script.google.com/macros/s/AKfycbw23qOcgd3BYbMlKowzXUAtlys0l-obAMZC9lRyQLbPhDMQItd3PwVfJ9s76vv_gK_1BA/exec");
     const customers = await response.json();
     const customerRefSelect = document.getElementById("customerRef");
 
@@ -352,21 +352,39 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
   document.getElementById('pickupDateFormatted').value = getBruneiFormattedDateTime('pickupDate');
   document.getElementById('deliveryDateFormatted').value = getBruneiFormattedDateTime('deliveryDate');
 
-  const formData=new FormData(this);
-  try{
-    const response=await fetch(this.action,{method:this.method,body:formData});
+  const formData = new FormData(this);
+
+  try {
+    const response = await fetch(this.action, { method: this.method, body: formData });
     if(response.ok){
-      document.getElementById('thankYouPopup').style.display='flex';
+      document.getElementById('thankYouPopup').style.display = 'flex';
       this.reset();
-      serviceFields.style.display='none';
-      singleAddressSection.style.display='none';
-      pickUpDeliverySection.style.display='none';
-      document.getElementById('deliveryDateSection').style.display='none';
-    } else { alert('Error submitting the form. Please try again.'); }
-  } catch(err){alert('Error submitting the form. Check your internet connection.'); console.error(err);}
+      serviceFields.style.display = 'none';
+      singleAddressSection.style.display = 'none';
+      pickUpDeliverySection.style.display = 'none';
+      document.getElementById('deliveryDateSection').style.display = 'none';
+
+      // REMOVE selected customer from the Update Form dropdown
+      if(formMode.value === 'update'){
+        const customerSelect = document.getElementById('customerRef');
+        const selectedIndex = customerSelect.selectedIndex;
+        if(selectedIndex > 0){ // ignore the placeholder option
+          customerSelect.remove(selectedIndex);
+        }
+        // Reset to placeholder
+        customerSelect.selectedIndex = 0;
+        document.getElementById('mapLinkWorker').value = ""; // clear map link field
+      }
+
+    } else { 
+      alert('Error submitting the form. Please try again.'); 
+    }
+  } catch(err){
+    alert('Error submitting the form. Check your internet connection.');
+    console.error(err);
+  }
 });
 </script>
 
 </body>
 </html>
-
