@@ -162,7 +162,7 @@
 </head>
 <body>
 
-<form id="appointmentForm" method="POST" action="https://YOUR-N8N-WEBHOOK-URL" novalidate>
+<form id="appointmentForm" method="POST" action="https://risetotop.app.n8n.cloud/webhook-test/uw-admin" novalidate>
   <h1>Ultra Wash Appointment</h1>
 
   <label for="name">Full Name</label>
@@ -187,95 +187,4 @@
   <input type="hidden" id="longitude" name="longitude" />
 
   <label for="pickupDate">Appointment Date & Time</label>
-  <input type="datetime-local" id="pickupDate" name="pickupDate" required />
-
-  <button type="submit">Submit Appointment</button>
-</form>
-
-<!-- Thank you popup -->
-<div id="thankYouPopup">
-  <div class="popup-content">
-    <div class="checkmark">✅</div>
-    <h1>Thank you for choosing UltraWash!</h1>
-    <p>Your appointment has been successfully submitted.<br />
-    Our team will contact you shortly via WhatsApp.</p>
-    <button onclick="closePopup()">Close</button>
-  </div>
-</div>
-
-<script>
-  const getLocationBtn = document.getElementById('getLocationBtn');
-  const locationStatus = document.getElementById('locationStatus');
-
-  getLocationBtn.addEventListener('click', () => {
-    if (!navigator.geolocation) {
-      locationStatus.textContent = 'Geolocation is not supported by your browser.';
-      return;
-    }
-    locationStatus.textContent = 'Locating… please allow location access.';
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude.toFixed(6);
-        const lng = position.coords.longitude.toFixed(6);
-        document.getElementById('latitude').value = lat;
-        document.getElementById('longitude').value = lng;
-        locationStatus.textContent = `Location captured: Latitude ${lat}, Longitude ${lng}`;
-      },
-      (error) => {
-        locationStatus.textContent = `Unable to retrieve location: ${error.message}`;
-      }
-    );
-  });
-
-  function closePopup() {
-    document.getElementById('thankYouPopup').style.display = 'none';
-  }
-
-  document.getElementById('appointmentForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    if (!this.checkValidity()) {
-      alert('Please complete all required fields.');
-      return;
-    }
-
-    const dateValue = document.getElementById('pickupDate').value;
-    if (dateValue) {
-      const selectedDate = new Date(dateValue);
-      const day = selectedDate.getDay(); // Sunday=0, Saturday=6
-      const hour = selectedDate.getHours();
-
-      if (day === 0) {
-        alert("🚫 Appointments cannot be scheduled on Sundays.");
-        return;
-      }
-      if (day === 6 && (hour < 8 || hour >= 12)) {
-        alert("🚫 On Saturdays, appointments must be between 08:00–12:00.");
-        return;
-      }
-    }
-
-    const formData = new FormData(this);
-
-    try {
-      const response = await fetch(this.action, {
-        method: this.method,
-        body: formData,
-      });
-
-      if (response.ok) {
-        document.getElementById('thankYouPopup').style.display = 'flex';
-        this.reset();
-        locationStatus.textContent = '';
-      } else {
-        alert('There was an error submitting the form. Please try again.');
-      }
-    } catch (error) {
-      alert('There was an error submitting the form. Please check your internet connection.');
-      console.error(error);
-    }
-  });
-</script>
-
-</body>
-</html>
+  <input type="datetime-local" id="pickupD
