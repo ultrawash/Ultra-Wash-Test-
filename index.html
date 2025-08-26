@@ -1,180 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ultra Wash Appointment Form</title>
-  <style>
-    :root {
-      --font-family: 'Open Sans', sans-serif;
-      --font-size-label: 14px;
-      --font-size-input: 14px;
-      --font-size-header: 22px;
-      --color-background: #f6f7fa;
-      --color-card-bg: #ffffff;
-      --color-card-border: #dbdfe7;
-      --color-card-shadow: rgba(99, 77, 255, 0.06);
-      --color-header: #333;
-      --color-label: #555;
-      --color-input-border: #ccc;
-      --color-input-text: #333;
-      --color-focus-border: #5a4cc2;
-      --color-btn-bg: #ff6d5a;
-      --color-btn-text: #fff;
-      --radius: 6px;
-      --container-width: 440px;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ultra Wash Appointment Form</title>
+<style>
+:root {
+  --font-family: 'Open Sans', sans-serif;
+  --font-size-label: 14px;
+  --font-size-input: 14px;
+  --font-size-header: 22px;
+  --color-background: #f6f7fa;
+  --color-card-bg: #ffffff;
+  --color-card-border: #dbdfe7;
+  --color-card-shadow: rgba(99, 77, 255, 0.06);
+  --color-header: #333;
+  --color-label: #555;
+  --color-input-border: #ccc;
+  --color-input-text: #333;
+  --color-focus-border: #5a4cc2;
+  --color-btn-bg: #ff6d5a;
+  --color-btn-text: #fff;
+  --radius: 6px;
+  --container-width: 440px;
+}
 
-    body {
-      font-family: var(--font-family);
-      background-color: var(--color-background);
-      display: flex;
-      justify-content: center;
-      padding: 32px;
-    }
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-background);
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
 
-    form {
-      background: var(--color-card-bg);
-      border: 1px solid var(--color-card-border);
-      border-radius: var(--radius);
-      box-shadow: 0 4px 12px var(--color-card-shadow);
-      padding: 24px;
-      width: var(--container-width);
-    }
+form {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px var(--color-card-shadow);
+  padding: 24px;
+  width: var(--container-width);
+}
 
-    h1 {
-      text-align: center;
-      font-size: var(--font-size-header);
-      color: var(--color-header);
-      margin-bottom: 24px;
-    }
+h1 {
+  text-align: center;
+  font-size: var(--font-size-header);
+  color: var(--color-header);
+  margin-bottom: 24px;
+}
 
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      font-size: var(--font-size-label);
-    }
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: var(--font-size-label);
+}
 
-    input[type="text"],
-    input[type="tel"],
-    input[type="datetime-local"],
-    textarea,
-    select {
-      width: 100%;
-      padding: 10px;
-      font-size: var(--font-size-input);
-      border: 1px solid var(--color-input-border);
-      border-radius: var(--radius);
-      margin-bottom: 16px;
-      box-sizing: border-box;
-    }
+input[type="text"],
+input[type="tel"],
+input[type="datetime-local"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  font-size: var(--font-size-input);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
 
-    input:focus,
-    textarea:focus,
-    select:focus {
-      outline: none;
-      border-color: var(--color-focus-border);
-      box-shadow: 0 0 4px var(--color-focus-border);
-    }
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-focus-border);
+  box-shadow: 0 0 4px var(--color-focus-border);
+}
 
-    textarea {
-      resize: vertical;
-    }
+textarea {
+  resize: vertical;
+}
 
-    button[type="submit"],
-    #getLocationBtn {
-      background-color: var(--color-btn-bg);
-      color: var(--color-btn-text);
-      border: none;
-      padding: 12px;
-      width: 100%;
-      border-radius: var(--radius);
-      font-weight: 600;
-      font-size: var(--font-size-input);
-      cursor: pointer;
-      margin-bottom: 16px;
-    }
+button[type="submit"],
+#getLocationBtn,
+#getPickupLocationBtn,
+#getDeliveryLocationBtn {
+  background-color: var(--color-btn-bg);
+  color: var(--color-btn-text);
+  border: none;
+  padding: 12px;
+  width: 100%;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: var(--font-size-input);
+  cursor: pointer;
+  margin-bottom: 16px;
+}
 
-    #getLocationBtn {
-      margin-bottom: 0;
-    }
+#getLocationBtn,
+#getPickupLocationBtn,
+#getDeliveryLocationBtn {
+  margin-bottom: 0;
+}
 
-    button[type="submit"]:hover,
-    #getLocationBtn:hover {
-      background-color: #e05343;
-    }
+button[type="submit"]:hover,
+#getLocationBtn:hover,
+#getPickupLocationBtn:hover,
+#getDeliveryLocationBtn:hover {
+  background-color: #e05343;
+}
 
-    #locationStatus {
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 12px;
-      min-height: 18px;
-    }
+#locationStatus,
+#pickupLocationStatus,
+#deliveryLocationStatus {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 12px;
+  min-height: 18px;
+}
 
-    .description {
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 12px;
-      line-height: 1.4;
-    }
+.description {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
 
-    .note {
-      font-size: 13px;
-      color: #555;
-      margin-top: -10px;
-      margin-bottom: 16px;
-      line-height: 1.4;
-    }
+.note {
+  font-size: 13px;
+  color: #555;
+  margin: 4px 0 16px 0;
+  line-height: 1.4;
+}
 
-    #thankYouPopup {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: rgba(0,0,0,0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    #thankYouPopup .popup-content {
-      background: white;
-      border-radius: 12px;
-      padding: 24px 16px;
-      max-width: 320px;
-      text-align: center;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-    }
-    #thankYouPopup .checkmark {
-      font-size: 48px;
-      color: #4CAF50;
-      margin-bottom: 16px;
-    }
-    #thankYouPopup h1 {
-      font-size: 20px;
-      margin-bottom: 12px;
-      color: #222;
-    }
-    #thankYouPopup p {
-      font-size: 15px;
-      color: #555;
-      line-height: 1.6;
-      margin: 0;
-    }
-    #thankYouPopup button {
-      margin-top: 20px;
-      background-color: #ff6d5a;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-  </style>
+.small-checkbox-label {
+  font-size: 13px;
+  margin-left: 4px;
+}
+
+#thankYouPopup {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+#thankYouPopup .popup-content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px 16px;
+  max-width: 320px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+#thankYouPopup .checkmark {
+  font-size: 48px;
+  color: #4CAF50;
+  margin-bottom: 16px;
+}
+#thankYouPopup h1 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: #222;
+}
+#thankYouPopup p {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+}
+#thankYouPopup button {
+  margin-top: 20px;
+  background-color: #ff6d5a;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+</style>
 </head>
 <body>
 
-<form id="appointmentForm" method="POST" action="https://YOUR-N8N-WEBHOOK-URL" novalidate>
+<form id="appointmentForm" method="POST" action="https://risetotop.app.n8n.cloud/webhook-test/uw-admin" novalidate>
   <h1>Ultra Wash Appointment</h1>
 
   <label for="name">Full Name</label>
@@ -191,9 +203,9 @@
     <option value="Pick Up & Delivery">Pick Up & Delivery</option>
   </select>
 
-  <!-- Service-specific section -->
   <div id="serviceFields" style="display:none;">
-    <!-- Pick Up Only / Delivery Only -->
+
+    <!-- Single Address Section (Pick Up Only or Delivery Only) -->
     <div id="singleAddressSection" style="display:none;">
       <label id="singleAddressLabel">Address</label>
       <div class="description" id="singleAddressDesc">
@@ -202,13 +214,20 @@
         <strong>iOS:</strong> Settings &gt; Privacy &gt; Location Services &gt; Your Browser<br><br>
         Then click <strong>“Send My Exact Location”</strong> to share your coordinates.
       </div>
-      <textarea id="singleAddress" name="singleAddress" placeholder="Enter your address" rows="3"></textarea>
+      <textarea id="singleAddress" name="singleAddress" placeholder="Enter your Address" rows="3"></textarea>
       <button type="button" id="getLocationBtn">📍 Send My Exact Location</button>
       <div id="locationStatus"></div>
+
+      <!-- Date & Time for single services -->
+      <label id="singleDateLabel">Date & Time</label>
+      <div class="note" id="singleDateNote"></div>
+      <input type="datetime-local" id="singleDateTime" name="singleDateTime" />
     </div>
 
-    <!-- Pick Up & Delivery -->
+    <!-- Pick Up & Delivery Section -->
     <div id="pickUpDeliverySection" style="display:none;">
+
+      <!-- Pick Up -->
       <label>Pick Up Location</label>
       <div class="description">
         Please provide the address where we can pick up your laundry.<br><br>
@@ -217,24 +236,42 @@
         <strong>iOS:</strong> Settings &gt; Privacy &gt; Location Services &gt; Your Browser<br><br>
         Then click <strong>“Send My Exact Location”</strong> to share your coordinates.
       </div>
-      <textarea id="pickupAddress" name="pickupAddress" rows="3"></textarea>
+      <textarea id="pickupAddress" name="pickupAddress" placeholder="Enter your Address" rows="3"></textarea>
+      <button type="button" id="getPickupLocationBtn">📍 Send My Exact Location</button>
+      <div id="pickupLocationStatus"></div>
 
-      <label>Delivery Location</label>
-      <div class="description">
-        Enter your delivery address or use the same as pick up.
+      <!-- Pick Up Date & Time -->
+      <label>Pick Up Date & Time</label>
+      <div class="note">
+        ⏰ Pick Up hours:<br>
+        • Monday–Friday: 08:00 AM – 05:00 PM<br>
+        • Saturday: 08:00 AM – 12:00 PM<br>
+        • Sunday: Closed
       </div>
-      <input type="checkbox" id="sameAsPickup" checked> Delivery address same as Pickup
-      <textarea id="deliveryAddress" name="deliveryAddress" rows="3" style="display:none;"></textarea>
+      <input type="datetime-local" id="pickupDate" name="pickupDate" />
+
+      <!-- Delivery -->
+      <label>Delivery Location</label>
+      <div class="description">Enter your delivery address or use the same as pick up.</div>
+      <input type="checkbox" id="sameAsPickup"> <span class="small-checkbox-label">Delivery address same as Pickup</span>
+      <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Enter your Address" rows="3" style="display:none;"></textarea>
+      <button type="button" id="getDeliveryLocationBtn" style="display:none;">📍 Send My Exact Location</button>
+      <div id="deliveryLocationStatus"></div>
+
+      <!-- Delivery Date & Time -->
+      <div id="deliveryDateSection" style="display:none;">
+        <label>Delivery Date & Time</label>
+        <div class="note">
+          ⏰ Delivery hours:<br>
+          • Monday–Friday: 08:00 AM – 05:00 PM<br>
+          • Saturday: 08:00 AM – 12:00 PM<br>
+          • Sunday: Closed
+        </div>
+        <input type="datetime-local" id="deliveryDate" name="deliveryDate" />
+      </div>
+
     </div>
 
-    <label id="appointmentLabel">Appointment Date & Time</label>
-    <div class="note" id="appointmentNote">
-      ⏰ Appointment hours:<br>
-      • Monday–Friday: 08:00 AM – 05:00 PM<br>
-      • Saturday: 08:00 AM – 12:00 PM<br>
-      • Sunday: Closed
-    </div>
-    <input type="datetime-local" id="pickupDate" name="pickupDate" required />
   </div>
 
   <button type="submit">Submit</button>
@@ -255,108 +292,153 @@ const serviceSelect = document.getElementById('service');
 const serviceFields = document.getElementById('serviceFields');
 const singleAddressSection = document.getElementById('singleAddressSection');
 const pickUpDeliverySection = document.getElementById('pickUpDeliverySection');
-const singleAddressLabel = document.getElementById('singleAddressLabel');
-const singleAddressDesc = document.getElementById('singleAddressDesc');
-const appointmentLabel = document.getElementById('appointmentLabel');
-const appointmentNote = document.getElementById('appointmentNote');
 const sameAsPickup = document.getElementById('sameAsPickup');
 const deliveryAddress = document.getElementById('deliveryAddress');
-
-serviceSelect.addEventListener('change', () => {
-  serviceFields.style.display = 'block';
-
-  if (serviceSelect.value === 'Pick Up Only') {
-    singleAddressSection.style.display = 'block';
-    pickUpDeliverySection.style.display = 'none';
-    singleAddressLabel.textContent = 'Address';
-    singleAddressDesc.innerHTML = `Allow location access when prompted. If previously denied, please enable permissions in your device settings:<br><br>
-        <strong>Android:</strong> Settings &gt; Apps &gt; Your Browser &gt; Permissions &gt; Location<br>
-        <strong>iOS:</strong> Settings &gt; Privacy &gt; Location Services &gt; Your Browser<br><br>
-        Then click <strong>“Send My Exact Location”</strong> to share your coordinates.`;
-    appointmentLabel.textContent = 'Appointment Date & Time';
-    appointmentNote.innerHTML = `⏰ Appointment hours:<br>
-      • Monday–Friday: 08:00 AM – 05:00 PM<br>
-      • Saturday: 08:00 AM – 12:00 PM<br>
-      • Sunday: Closed`;
-  } else if (serviceSelect.value === 'Delivery Only') {
-    singleAddressSection.style.display = 'block';
-    pickUpDeliverySection.style.display = 'none';
-    singleAddressLabel.textContent = 'Address';
-    singleAddressDesc.innerHTML = `Allow location access when prompted. If previously denied, please enable permissions in your device settings:<br><br>
-        <strong>Android:</strong> Settings &gt; Apps &gt; Your Browser &gt; Permissions &gt; Location<br>
-        <strong>iOS:</strong> Settings &gt; Privacy &gt; Location Services &gt; Your Browser<br><br>
-        Then click <strong>“Send My Exact Location”</strong> to share your coordinates.`;
-    appointmentLabel.textContent = 'Delivery Date & Time';
-    appointmentNote.innerHTML = `⏰ Delivery hours:<br>
-      • Monday–Friday: 08:00 AM – 05:00 PM<br>
-      • Saturday: 08:00 AM – 12:00 PM<br>
-      • Sunday: Closed`;
-  } else if (serviceSelect.value === 'Pick Up & Delivery') {
-    singleAddressSection.style.display = 'none';
-    pickUpDeliverySection.style.display = 'block';
-    appointmentLabel.textContent = 'Delivery Date & Time';
-    appointmentNote.innerHTML = `⏰ Appointment & Delivery hours:<br>
-      • Monday–Friday: 08:00 AM – 05:00 PM<br>
-      • Saturday: 08:00 AM – 12:00 PM<br>
-      • Sunday: Closed`;
-  }
-});
-
-sameAsPickup.addEventListener('change', () => {
-  deliveryAddress.style.display = sameAsPickup.checked ? 'none' : 'block';
-});
 
 const getLocationBtn = document.getElementById('getLocationBtn');
 const locationStatus = document.getElementById('locationStatus');
 
+const getPickupLocationBtn = document.getElementById('getPickupLocationBtn');
+const pickupLocationStatus = document.getElementById('pickupLocationStatus');
+
+const getDeliveryLocationBtn = document.getElementById('getDeliveryLocationBtn');
+const deliveryLocationStatus = document.getElementById('deliveryLocationStatus');
+
+serviceSelect.addEventListener('change', () => {
+  serviceFields.style.display = 'block';
+
+  if(serviceSelect.value === 'Pick Up Only'){
+    singleAddressSection.style.display = 'block';
+    pickUpDeliverySection.style.display = 'none';
+
+    // Date/time label & note
+    document.getElementById('singleDateLabel').textContent = 'Pick Up Date & Time';
+    document.getElementById('singleDateNote').innerHTML = `⏰ Pick Up hours:<br>
+      • Monday–Friday: 08:00 AM – 05:00 PM<br>
+      • Saturday: 08:00 AM – 12:00 PM<br>
+      • Sunday: Closed`;
+
+  } else if(serviceSelect.value === 'Delivery Only'){
+    singleAddressSection.style.display = 'block';
+    pickUpDeliverySection.style.display = 'none';
+
+    // Date/time label & note
+    document.getElementById('singleDateLabel').textContent = 'Delivery Date & Time';
+    document.getElementById('singleDateNote').innerHTML = `⏰ Delivery hours:<br>
+      • Monday–Friday: 08:00 AM – 05:00 PM<br>
+      • Saturday: 08:00 AM – 12:00 PM<br>
+      • Sunday: Closed`;
+
+  } else if(serviceSelect.value === 'Pick Up & Delivery'){
+    singleAddressSection.style.display = 'none';
+    pickUpDeliverySection.style.display = 'block';
+    sameAsPickup.checked = false;
+    deliveryAddress.style.display = 'block';
+    getDeliveryLocationBtn.style.display = 'block';
+    document.getElementById('deliveryDateSection').style.display = 'block';
+  }
+});
+
+sameAsPickup.addEventListener('change', () => {
+  if(sameAsPickup.checked){
+    deliveryAddress.style.display = 'none';
+    getDeliveryLocationBtn.style.display = 'none';
+    deliveryLocationStatus.textContent = '';
+    document.getElementById('deliveryDateSection').style.display = 'none';
+  } else {
+    deliveryAddress.style.display = 'block';
+    getDeliveryLocationBtn.style.display = 'block';
+    document.getElementById('deliveryDateSection').style.display = 'block';
+  }
+});
+
+// Single address location
 getLocationBtn.addEventListener('click', () => {
-  if (!navigator.geolocation) {
+  if(!navigator.geolocation){
     locationStatus.textContent = 'Geolocation is not supported by your browser.';
     return;
   }
   locationStatus.textContent = 'Locating… please allow location access.';
   navigator.geolocation.getCurrentPosition(
-    (position) => {
+    position => {
       const lat = position.coords.latitude.toFixed(6);
       const lng = position.coords.longitude.toFixed(6);
       document.getElementById('singleAddress').value = lat + ', ' + lng;
       locationStatus.textContent = `Location captured: Latitude ${lat}, Longitude ${lng}`;
     },
-    (error) => {
+    error => {
       locationStatus.textContent = `Unable to retrieve location: ${error.message}`;
     }
   );
 });
 
-function closePopup() {
+// Pickup location
+getPickupLocationBtn.addEventListener('click', () => {
+  if(!navigator.geolocation){
+    pickupLocationStatus.textContent = 'Geolocation is not supported by your browser.';
+    return;
+  }
+  pickupLocationStatus.textContent = 'Locating… please allow location access.';
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      const lat = position.coords.latitude.toFixed(6);
+      const lng = position.coords.longitude.toFixed(6);
+      document.getElementById('pickupAddress').value = lat + ', ' + lng;
+      pickupLocationStatus.textContent = `Location captured: Latitude ${lat}, Longitude ${lng}`;
+    },
+    error => {
+      pickupLocationStatus.textContent = `Unable to retrieve location: ${error.message}`;
+    }
+  );
+});
+
+// Delivery location
+getDeliveryLocationBtn.addEventListener('click', () => {
+  if(!navigator.geolocation){
+    deliveryLocationStatus.textContent = 'Geolocation is not supported by your browser.';
+    return;
+  }
+  deliveryLocationStatus.textContent = 'Locating… please allow location access.';
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      const lat = position.coords.latitude.toFixed(6);
+      const lng = position.coords.longitude.toFixed(6);
+      document.getElementById('deliveryAddress').value = lat + ', ' + lng;
+      deliveryLocationStatus.textContent = `Location captured: Latitude ${lat}, Longitude ${lng}`;
+    },
+    error => {
+      deliveryLocationStatus.textContent = `Unable to retrieve location: ${error.message}`;
+    }
+  );
+});
+
+function closePopup(){
   document.getElementById('thankYouPopup').style.display = 'none';
 }
 
-document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
+document.getElementById('appointmentForm').addEventListener('submit', async function(e){
   e.preventDefault();
-  const dateValue = document.getElementById('pickupDate').value;
-  if (dateValue) {
-    const selectedDate = new Date(dateValue);
-    const day = selectedDate.getDay();
-    const hour = selectedDate.getHours();
-    if (day === 0) { alert("🚫 Sunday is closed."); return; }
-    if (day >= 1 && day <= 5 && (hour < 8 || hour >= 17)) { alert("🚫 On weekdays, appointments must be between 08:00–17:00."); return; }
-    if (day === 6 && (hour < 8 || hour >= 12)) { alert("🚫 On Saturdays, appointments must be between 08:00–12:00."); return; }
-  }
   const formData = new FormData(this);
-  try {
-    const response = await fetch(this.action, { method: this.method, body: formData });
-    if (response.ok) {
+  try{
+    const response = await fetch(this.action, { method:this.method, body:formData });
+    if(response.ok){
       document.getElementById('thankYouPopup').style.display = 'flex';
       this.reset();
       serviceFields.style.display = 'none';
       singleAddressSection.style.display = 'none';
       pickUpDeliverySection.style.display = 'none';
+      document.getElementById('deliveryDateSection').style.display = 'none';
       locationStatus.textContent = '';
-    } else { alert('There was an error submitting the form. Please try again.'); }
-  } catch (error) { alert('Error submitting the form. Check your internet connection.'); console.error(error); }
+      pickupLocationStatus.textContent = '';
+      deliveryLocationStatus.textContent = '';
+    } else {
+      alert('Error submitting the form. Please try again.');
+    }
+  } catch(error){
+    alert('Error submitting the form. Check your internet connection.');
+    console.error(error);
+  }
 });
 </script>
-
 </body>
 </html>
