@@ -167,7 +167,7 @@ button[type="submit"]:hover { background-color: #e05343; }
         <label>Pick Up Location</label>
         <textarea id="pickupAddress" name="pickupAddress" placeholder="Enter your Address" rows="3"></textarea>
         <label for="pickupMapLink">Map Link</label>
-        <input id="pickupMapLink" name="pickupMapLink" type="text" placeholder="Paste Google Maps link" />
+        <input id="pickupMapLink" name="pickupMapLink" type="text" placeholder="Paste Google Maps link or Coordinates" />
         <label>Pick Up Date & Time</label>
         <div class="note">⏰ Pick Up hours:<br>• Monday–Friday: 08:30 AM – 04:30 PM<br>• Saturday: 08:30 AM – 11:30 AM<br>• Sunday: Closed</div>
         <input type="datetime-local" id="pickupDate" name="pickupDate" />
@@ -179,7 +179,7 @@ button[type="submit"]:hover { background-color: #e05343; }
         </div>
         <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Enter your Address" rows="3"></textarea>
         <label for="deliveryMapLink" id="deliveryMapLabel">Map Link</label>
-        <input id="deliveryMapLink" name="deliveryMapLink" type="text" placeholder="Paste Google Maps link" />
+        <input id="deliveryMapLink" name="deliveryMapLink" type="text" placeholder="Paste Google Maps link or Coordinates" />
         <div id="deliveryDateSection" style="display:none;">
           <label>Delivery Date & Time</label>
           <div class="note">⏰ Delivery hours:<br>• Monday–Friday: 08:30 AM – 04:30 PM<br>• Saturday: 08:30 AM – 11:30 AM<br>• Sunday: Closed</div>
@@ -295,7 +295,7 @@ function closePopup(){ document.getElementById('thankYouPopup').style.display='n
 // Load customer list from Google Apps Script
 async function loadCustomers() {
   try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbw23qOcgd3BYbMlKowzXUAtlys0l-obAMZC9lRyQLbPhDMQItd3PwVfJ9s76vv_gK_1BA/exec");
+    const response = await fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec");
     const customers = await response.json();
     const customerRefSelect = document.getElementById("customerRef");
 
@@ -303,8 +303,8 @@ async function loadCustomers() {
       let option = document.createElement("option");
       option.value = cust["Customer ID"] || cust["Phone"];
       option.textContent = `${cust["Name"]} (${cust["Phone"]})`;
-      option.dataset.maplink = cust["Map Link"];
-      option.dataset.address = cust["Location Address"];
+      option.dataset.maplink = cust["Map Link / Coordinates"] || "";
+      option.dataset.address = cust["Location Address"] || "";
       customerRefSelect.appendChild(option);
     });
 
