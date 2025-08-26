@@ -186,12 +186,23 @@
     <option value="Pick Up & Delivery">Pick Up & Delivery</option>
   </select>
 
-  <label id="locationLabel" for="address">Pickup Location</label>
-  <textarea id="address" name="address" placeholder="Enter your address" rows="3" required></textarea>
-  <button type="button" id="getLocationBtn">📍 Send My Exact Location</button>
-  <div id="locationStatus"></div>
-  <input type="hidden" id="latitude" name="latitude" />
-  <input type="hidden" id="longitude" name="longitude" />
+  <div id="pickupSection">
+    <label id="locationLabel" for="address">Pickup Location</label>
+    <textarea id="address" name="address" placeholder="Enter your address" rows="3" required></textarea>
+    <button type="button" id="getLocationBtn">📍 Send My Exact Location</button>
+    <div id="locationStatus"></div>
+    <input type="hidden" id="latitude" name="latitude" />
+    <input type="hidden" id="longitude" name="longitude" />
+  </div>
+
+  <div id="deliverySection" style="display:none;">
+    <label for="deliveryAddress">Delivery Address</label>
+    <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Enter delivery address" rows="3"></textarea>
+    <div>
+      <input type="checkbox" id="sameAsPickup" checked />
+      <label for="sameAsPickup">Delivery address same as Pickup</label>
+    </div>
+  </div>
 
   <div id="pickupDateSection">
     <label for="pickupDate">Appointment Date & Time</label>
@@ -223,6 +234,9 @@
   const locationLabel = document.getElementById('locationLabel');
   const pickupDateSection = document.getElementById('pickupDateSection');
   const addressInput = document.getElementById('address');
+  const deliverySection = document.getElementById('deliverySection');
+  const deliveryAddress = document.getElementById('deliveryAddress');
+  const sameAsPickup = document.getElementById('sameAsPickup');
 
   serviceSelect.addEventListener('change', () => {
     const selectedService = serviceSelect.value;
@@ -230,18 +244,34 @@
     if (selectedService === 'Pick Up Only') {
       locationLabel.textContent = 'Pickup Location';
       pickupDateSection.style.display = 'block';
+      deliverySection.style.display = 'none';
       addressInput.required = true;
       document.getElementById('pickupDate').required = true;
     } else if (selectedService === 'Delivery Only') {
       locationLabel.textContent = 'Delivery Location';
       pickupDateSection.style.display = 'none';
+      deliverySection.style.display = 'block';
       addressInput.required = true;
+      deliveryAddress.required = true;
       document.getElementById('pickupDate').required = false;
     } else if (selectedService === 'Pick Up & Delivery') {
       locationLabel.textContent = 'Pickup Location';
       pickupDateSection.style.display = 'block';
+      deliverySection.style.display = 'block';
+      deliveryAddress.style.display = 'none';
+      sameAsPickup.checked = true;
       addressInput.required = true;
       document.getElementById('pickupDate').required = true;
+    }
+  });
+
+  sameAsPickup.addEventListener('change', () => {
+    if (sameAsPickup.checked) {
+      deliveryAddress.style.display = 'none';
+      deliveryAddress.required = false;
+    } else {
+      deliveryAddress.style.display = 'block';
+      deliveryAddress.required = true;
     }
   });
 
@@ -312,6 +342,8 @@
         document.getElementById('thankYouPopup').style.display = 'flex';
         this.reset();
         locationStatus.textContent = '';
+        deliverySection.style.display = 'none';
+        pickupDateSection.style.display = 'block';
       } else {
         alert('There was an error submitting the form. Please try again.');
       }
