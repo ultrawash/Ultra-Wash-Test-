@@ -10,7 +10,6 @@
       --font-size-label: 14px;
       --font-size-input: 14px;
       --font-size-header: 22px;
-
       --color-background: #f6f7fa;
       --color-card-bg: #ffffff;
       --color-card-border: #dbdfe7;
@@ -22,7 +21,6 @@
       --color-focus-border: #5a4cc2;
       --color-btn-bg: #ff6d5a;
       --color-btn-text: #fff;
-
       --radius: 6px;
       --container-width: 440px;
     }
@@ -56,12 +54,6 @@
       margin-bottom: 6px;
       font-weight: 600;
       font-size: var(--font-size-label);
-    }
-
-    .description {
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 10px;
     }
 
     input[type="text"],
@@ -120,24 +112,21 @@
       min-height: 18px;
     }
 
+    .description {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
     .note {
       font-size: 13px;
       color: #555;
+      margin-top: -10px;
       margin-bottom: 16px;
       line-height: 1.4;
     }
 
-    .hidden {
-      display: none;
-    }
-
-    #deliverySection input[type="checkbox"] {
-      margin-right: 6px;
-      transform: scale(0.9);
-      vertical-align: middle;
-    }
-
-    /* Popup styles */
     #thankYouPopup {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -202,130 +191,171 @@
     <option value="Pick Up & Delivery">Pick Up & Delivery</option>
   </select>
 
-  <div id="dynamicFields" class="hidden">
-
-    <!-- Pickup Section -->
-    <div id="pickupSection" class="hidden">
-      <label id="pickupLabel" for="pickupAddress">Address</label>
-      <div class="description">Please provide the address where we can pick up your laundry.</div>
-      <textarea id="pickupAddress" name="pickupAddress" placeholder="Enter pickup address" rows="3"></textarea>
+  <!-- Service-specific section -->
+  <div id="serviceFields" style="display:none;">
+    <!-- Pick Up Only / Delivery Only -->
+    <div id="singleAddressSection" style="display:none;">
+      <label id="singleAddressLabel">Address</label>
+      <div class="description" id="singleAddressDesc">
+        Allow location access when prompted. If previously denied, please enable permissions in your device settings:<br><br>
+        <strong>Android:</strong> Settings &gt; Apps &gt; Your Browser &gt; Permissions &gt; Location<br>
+        <strong>iOS:</strong> Settings &gt; Privacy &gt; Location Services &gt; Your Browser<br><br>
+        Then click <strong>“Send My Exact Location”</strong> to share your coordinates.
+      </div>
+      <textarea id="singleAddress" name="singleAddress" placeholder="Enter your address" rows="3"></textarea>
       <button type="button" id="getLocationBtn">📍 Send My Exact Location</button>
       <div id="locationStatus"></div>
     </div>
 
-    <!-- Delivery Section -->
-    <div id="deliverySection" class="hidden">
-      <label id="deliveryLabel" for="deliveryAddress">Delivery Location</label>
-      <div class="description">Provide the address where you want your laundry delivered.</div>
-      <input type="checkbox" id="sameAsPickup" checked /> Delivery address same as Pickup
-      <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Enter delivery address" rows="3" class="hidden"></textarea>
+    <!-- Pick Up & Delivery -->
+    <div id="pickUpDeliverySection" style="display:none;">
+      <label>Pick Up Location</label>
+      <div class="description">
+        Please provide the address where we can pick up your laundry.<br><br>
+        Allow location access when prompted. If previously denied, please enable permissions in your device settings:<br><br>
+        <strong>Android:</strong> Settings &gt; Apps &gt; Your Browser &gt; Permissions &gt; Location<br>
+        <strong>iOS:</strong> Settings &gt; Privacy &gt; Location Services &gt; Your Browser<br><br>
+        Then click <strong>“Send My Exact Location”</strong> to share your coordinates.
+      </div>
+      <textarea id="pickupAddress" name="pickupAddress" rows="3"></textarea>
+
+      <label>Delivery Location</label>
+      <div class="description">
+        Enter your delivery address or use the same as pick up.
+      </div>
+      <input type="checkbox" id="sameAsPickup" checked> Delivery address same as Pickup
+      <textarea id="deliveryAddress" name="deliveryAddress" rows="3" style="display:none;"></textarea>
     </div>
 
-    <!-- Appointment Date/Time -->
-    <label id="dateLabel" for="pickupDate">Appointment Date & Time</label>
-    <div class="note" id="hoursNote">
+    <label id="appointmentLabel">Appointment Date & Time</label>
+    <div class="note" id="appointmentNote">
       ⏰ Appointment hours:<br>
       • Monday–Friday: 08:00 AM – 05:00 PM<br>
       • Saturday: 08:00 AM – 12:00 PM<br>
       • Sunday: Closed
     </div>
     <input type="datetime-local" id="pickupDate" name="pickupDate" required />
-
-    <button type="submit">Submit</button>
   </div>
+
+  <button type="submit">Submit</button>
 </form>
 
-<!-- Thank you popup -->
 <div id="thankYouPopup">
   <div class="popup-content">
     <div class="checkmark">✅</div>
     <h1>Thank you for choosing UltraWash!</h1>
-    <p>Your appointment has been successfully submitted.<br />
+    <p>Your appointment has been successfully submitted.<br>
     Our team will contact you shortly via WhatsApp.</p>
     <button onclick="closePopup()">Close</button>
   </div>
 </div>
 
 <script>
-  const serviceSelect = document.getElementById('service');
-  const dynamicFields = document.getElementById('dynamicFields');
-  const pickupSection = document.getElementById('pickupSection');
-  const deliverySection = document.getElementById('deliverySection');
-  const sameAsPickup = document.getElementById('sameAsPickup');
-  const deliveryAddress = document.getElementById('deliveryAddress');
-  const pickupAddress = document.getElementById('pickupAddress');
-  const getLocationBtn = document.getElementById('getLocationBtn');
-  const locationStatus = document.getElementById('locationStatus');
-  const dateLabel = document.getElementById('dateLabel');
-  const hoursNote = document.getElementById('hoursNote');
+const serviceSelect = document.getElementById('service');
+const serviceFields = document.getElementById('serviceFields');
+const singleAddressSection = document.getElementById('singleAddressSection');
+const pickUpDeliverySection = document.getElementById('pickUpDeliverySection');
+const singleAddressLabel = document.getElementById('singleAddressLabel');
+const singleAddressDesc = document.getElementById('singleAddressDesc');
+const appointmentLabel = document.getElementById('appointmentLabel');
+const appointmentNote = document.getElementById('appointmentNote');
+const sameAsPickup = document.getElementById('sameAsPickup');
+const deliveryAddress = document.getElementById('deliveryAddress');
 
-  serviceSelect.addEventListener('change', () => {
-    dynamicFields.classList.remove('hidden');
+serviceSelect.addEventListener('change', () => {
+  serviceFields.style.display = 'block';
 
-    const service = serviceSelect.value;
-    pickupSection.classList.add('hidden');
-    deliverySection.classList.add('hidden');
-
-    if (service === 'Pick Up Only') {
-      pickupSection.classList.remove('hidden');
-      document.getElementById('pickupLabel').textContent = 'Address';
-      pickupAddress.required = true;
-      deliveryAddress.required = false;
-      sameAsPickup.checked = true;
-      sameAsPickup.style.display = 'none';
-      dateLabel.textContent = 'Appointment Date & Time';
-      hoursNote.innerHTML = "⏰ Appointment hours:<br>• Monday–Friday: 08:00 AM – 05:00 PM<br>• Saturday: 08:00 AM – 12:00 PM<br>• Sunday: Closed";
-    } else if (service === 'Delivery Only') {
-      deliverySection.classList.remove('hidden');
-      document.getElementById('deliveryLabel').textContent = 'Address';
-      pickupAddress.required = false;
-      deliveryAddress.required = true;
-      sameAsPickup.style.display = 'none';
-      deliveryAddress.classList.remove('hidden');
-      dateLabel.textContent = 'Delivery Date & Time';
-      hoursNote.innerHTML = "⏰ Delivery hours:<br>• Monday–Friday: 08:00 AM – 05:00 PM<br>• Saturday: 08:00 AM – 12:00 PM<br>• Sunday: Closed";
-    } else if (service === 'Pick Up & Delivery') {
-      pickupSection.classList.remove('hidden');
-      deliverySection.classList.remove('hidden');
-      document.getElementById('pickupLabel').textContent = 'Pick Up Location';
-      document.getElementById('deliveryLabel').textContent = 'Delivery Location';
-      sameAsPickup.style.display = 'inline';
-      deliveryAddress.classList.add('hidden');
-      pickupAddress.required = true;
-      deliveryAddress.required = false;
-      dateLabel.textContent = 'Delivery Date & Time';
-      hoursNote.innerHTML = "⏰ Delivery hours:<br>• Monday–Friday: 08:00 AM – 05:00 PM<br>• Saturday: 08:00 AM – 12:00 PM<br>• Sunday: Closed";
-    }
-  });
-
-  sameAsPickup.addEventListener('change', () => {
-    deliveryAddress.classList.toggle('hidden', sameAsPickup.checked);
-    deliveryAddress.required = !sameAsPickup.checked;
-  });
-
-  getLocationBtn.addEventListener('click', () => {
-    if (!navigator.geolocation) {
-      locationStatus.textContent = 'Geolocation is not supported by your browser.';
-      return;
-    }
-    locationStatus.textContent = 'Locating… please allow location access.';
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude.toFixed(6);
-        const lng = position.coords.longitude.toFixed(6);
-        document.getElementById('latitude')?.setAttribute('value', lat);
-        document.getElementById('longitude')?.setAttribute('value', lng);
-        locationStatus.textContent = `Location captured: Latitude ${lat}, Longitude ${lng}`;
-      },
-      (error) => {
-        locationStatus.textContent = `Unable to retrieve location: ${error.message}`;
-      }
-    );
-  });
-
-  function closePopup() {
-    document.getElementById('thankYouPopup').style.display = 'none';
+  if (serviceSelect.value === 'Pick Up Only') {
+    singleAddressSection.style.display = 'block';
+    pickUpDeliverySection.style.display = 'none';
+    singleAddressLabel.textContent = 'Address';
+    singleAddressDesc.innerHTML = `Allow location access when prompted. If previously denied, please enable permissions in your device settings:<br><br>
+        <strong>Android:</strong> Settings &gt; Apps &gt; Your Browser &gt; Permissions &gt; Location<br>
+        <strong>iOS:</strong> Settings &gt; Privacy &gt; Location Services &gt; Your Browser<br><br>
+        Then click <strong>“Send My Exact Location”</strong> to share your coordinates.`;
+    appointmentLabel.textContent = 'Appointment Date & Time';
+    appointmentNote.innerHTML = `⏰ Appointment hours:<br>
+      • Monday–Friday: 08:00 AM – 05:00 PM<br>
+      • Saturday: 08:00 AM – 12:00 PM<br>
+      • Sunday: Closed`;
+  } else if (serviceSelect.value === 'Delivery Only') {
+    singleAddressSection.style.display = 'block';
+    pickUpDeliverySection.style.display = 'none';
+    singleAddressLabel.textContent = 'Address';
+    singleAddressDesc.innerHTML = `Allow location access when prompted. If previously denied, please enable permissions in your device settings:<br><br>
+        <strong>Android:</strong> Settings &gt; Apps &gt; Your Browser &gt; Permissions &gt; Location<br>
+        <strong>iOS:</strong> Settings &gt; Privacy &gt; Location Services &gt; Your Browser<br><br>
+        Then click <strong>“Send My Exact Location”</strong> to share your coordinates.`;
+    appointmentLabel.textContent = 'Delivery Date & Time';
+    appointmentNote.innerHTML = `⏰ Delivery hours:<br>
+      • Monday–Friday: 08:00 AM – 05:00 PM<br>
+      • Saturday: 08:00 AM – 12:00 PM<br>
+      • Sunday: Closed`;
+  } else if (serviceSelect.value === 'Pick Up & Delivery') {
+    singleAddressSection.style.display = 'none';
+    pickUpDeliverySection.style.display = 'block';
+    appointmentLabel.textContent = 'Delivery Date & Time';
+    appointmentNote.innerHTML = `⏰ Appointment & Delivery hours:<br>
+      • Monday–Friday: 08:00 AM – 05:00 PM<br>
+      • Saturday: 08:00 AM – 12:00 PM<br>
+      • Sunday: Closed`;
   }
+});
+
+sameAsPickup.addEventListener('change', () => {
+  deliveryAddress.style.display = sameAsPickup.checked ? 'none' : 'block';
+});
+
+const getLocationBtn = document.getElementById('getLocationBtn');
+const locationStatus = document.getElementById('locationStatus');
+
+getLocationBtn.addEventListener('click', () => {
+  if (!navigator.geolocation) {
+    locationStatus.textContent = 'Geolocation is not supported by your browser.';
+    return;
+  }
+  locationStatus.textContent = 'Locating… please allow location access.';
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude.toFixed(6);
+      const lng = position.coords.longitude.toFixed(6);
+      document.getElementById('singleAddress').value = lat + ', ' + lng;
+      locationStatus.textContent = `Location captured: Latitude ${lat}, Longitude ${lng}`;
+    },
+    (error) => {
+      locationStatus.textContent = `Unable to retrieve location: ${error.message}`;
+    }
+  );
+});
+
+function closePopup() {
+  document.getElementById('thankYouPopup').style.display = 'none';
+}
+
+document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const dateValue = document.getElementById('pickupDate').value;
+  if (dateValue) {
+    const selectedDate = new Date(dateValue);
+    const day = selectedDate.getDay();
+    const hour = selectedDate.getHours();
+    if (day === 0) { alert("🚫 Sunday is closed."); return; }
+    if (day >= 1 && day <= 5 && (hour < 8 || hour >= 17)) { alert("🚫 On weekdays, appointments must be between 08:00–17:00."); return; }
+    if (day === 6 && (hour < 8 || hour >= 12)) { alert("🚫 On Saturdays, appointments must be between 08:00–12:00."); return; }
+  }
+  const formData = new FormData(this);
+  try {
+    const response = await fetch(this.action, { method: this.method, body: formData });
+    if (response.ok) {
+      document.getElementById('thankYouPopup').style.display = 'flex';
+      this.reset();
+      serviceFields.style.display = 'none';
+      singleAddressSection.style.display = 'none';
+      pickUpDeliverySection.style.display = 'none';
+      locationStatus.textContent = '';
+    } else { alert('There was an error submitting the form. Please try again.'); }
+  } catch (error) { alert('Error submitting the form. Check your internet connection.'); console.error(error); }
+});
 </script>
 
 </body>
