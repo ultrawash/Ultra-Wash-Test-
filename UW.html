@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultra Wash Appointment Form</title>
+  <style>
+    :root {
+      --font-family: 'Open Sans', sans-serif;
+      --font-size-label: 14px;
+      --font-size-input: 14px;
+      --font-size-header: 22px;
+
+      --color-background: #f6f7fa;
+      --color-card-bg: #ffffff;
+      --color-card-border: #dbdfe7;
+      --color-card-shadow: rgba(99, 77, 255, 0.06);
+      --color-header: #333;
+      --color-label: #555;
+      --color-input-border: #ccc;
+      --color-input-text: #333;
+      --color-focus-border: #5a4cc2;
+      --color-btn-bg: #ff6d5a;
+      --color-btn-text: #fff;
+
+      --radius: 6px;
+      --container-width: 440px;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--color-background);
+      display: flex;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    form {
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-card-border);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px var(--color-card-shadow);
+      padding: 24px;
+      width: var(--container-width);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: var(--font-size-header);
+      color: var(--color-header);
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: var(--font-size-label);
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    input[type="datetime-local"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: var(--font-size-input);
+      border: 1px solid var(--color-input-border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      box-sizing: border-box;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--color-focus-border);
+      box-shadow: 0 0 4px var(--color-focus-border);
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button[type="submit"],
+    #getLocationBtn {
+      background-color: var(--color-btn-bg);
+      color: var(--color-btn-text);
+      border: none;
+      padding: 12px;
+      width: 100%;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: var(--font-size-input);
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+
+    #getLocationBtn {
+      margin-bottom: 0;
+    }
+
+    button[type="submit"]:hover,
+    #getLocationBtn:hover {
+      background-color: #e05343;
+    }
+
+    #locationStatus {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 12px;
+      min-height: 18px;
+    }
+
+    /* Popup styles */
+    #thankYouPopup {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #thankYouPopup .popup-content {
+      background: white;
+      border-radius: 12px;
+      padding: 24px 16px;
+      max-width: 320px;
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    #thankYouPopup .checkmark {
+      font-size: 48px;
+      color: #4CAF50;
+      margin-bottom: 16px;
+    }
+    #thankYouPopup h1 {
+      font-size: 20px;
+      margin-bottom: 12px;
+      color: #222;
+    }
+    #thankYouPopup p {
+      font-size: 15px;
+      color: #555;
+      line-height: 1.6;
+      margin: 0;
+    }
+    #thankYouPopup button {
+      margin-top: 20px;
+      background-color: #ff6d5a;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<form id="appointmentForm" method="POST" action="https://YOUR-N8N-WEBHOOK-URL" novalidate>
+  <h1>Ultra Wash Appointment</h1>
+
+  <label for="name">Full Name</label>
+  <input id="name" name="name" type="text" placeholder="First Name, Last Name" required />
+
+  <label for="phone">Phone Number</label>
+  <input id="phone" name="phone" type="tel" placeholder="+673 8221133 / 8221133" required />
+
+  <label for="service">Service</label>
+  <select id="service" name="service" required>
+    <option value="" disabled selected>Select service</option>
+    <option value="Pick Up Only">Pick Up Only</option>
+    <option value="Delivery Only">Delivery Only</option>
+    <option value="Pick Up & Delivery">Pick Up & Delivery</option>
+  </select>
+
+  <label for="address">Pickup Location</label>
+  <textarea id="address" name="address" placeholder="Enter your address" rows="3" required></textarea>
+  <button type="button" id="getLocationBtn">📍 Send My Exact Location</button>
+  <div id="locationStatus"></div>
+  <input type="hidden" id="latitude" name="latitude" />
+  <input type="hidden" id="longitude" name="longitude" />
+
+  <label for="pickupDate">Appointment Date & Time</label>
+  <input type="datetime-local" id="pickupDate" name="pickupDate" required />
+
+  <button type="submit">Submit Appointment</button>
+</form>
+
+<!-- Thank you popup -->
+<div id="thankYouPopup">
+  <div class="popup-content">
+    <div class="checkmark">✅</div>
+    <h1>Thank you for choosing UltraWash!</h1>
+    <p>Your appointment has been successfully submitted.<br />
+    Our team will contact you shortly via WhatsApp.</p>
+    <button onclick="closePopup()">Close</button>
+  </div>
+</div>
+
+<script>
+  const getLocationBtn = document.getElementById('getLocationBtn');
+  const locationStatus = document.getElementById('locationStatus');
+
+  getLocationBtn.addEventListener('click', () => {
+    if (!navigator.geolocation) {
+      locationStatus.textContent = 'Geolocation is not supported by your browser.';
+      return;
+    }
+    locationStatus.textContent = 'Locating… please allow location access.';
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude.toFixed(6);
+        const lng = position.coords.longitude.toFixed(6);
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+        locationStatus.textContent = `Location captured: Latitude ${lat}, Longitude ${lng}`;
+      },
+      (error) => {
+        locationStatus.textContent = `Unable to retrieve location: ${error.message}`;
+      }
+    );
+  });
+
+  function closePopup() {
+    document.getElementById('thankYouPopup').style.display = 'none';
+  }
+
+  document.getElementById('appointmentForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    if (!this.checkValidity()) {
+      alert('Please complete all required fields.');
+      return;
+    }
+
+    const dateValue = document.getElementById('pickupDate').value;
+    if (dateValue) {
+      const selectedDate = new Date(dateValue);
+      const day = selectedDate.getDay(); // Sunday=0, Saturday=6
+      const hour = selectedDate.getHours();
+
+      if (day === 0) {
+        alert("🚫 Appointments cannot be scheduled on Sundays.");
+        return;
+      }
+      if (day === 6 && (hour < 8 || hour >= 12)) {
+        alert("🚫 On Saturdays, appointments must be between 08:00–12:00.");
+        return;
+      }
+    }
+
+    const formData = new FormData(this);
+
+    try {
+      const response = await fetch(this.action, {
+        method: this.method,
+        body: formData,
+      });
+
+      if (response.ok) {
+        document.getElementById('thankYouPopup').style.display = 'flex';
+        this.reset();
+        locationStatus.textContent = '';
+      } else {
+        alert('There was an error submitting the form. Please try again.');
+      }
+    } catch (error) {
+      alert('There was an error submitting the form. Please check your internet connection.');
+      console.error(error);
+    }
+  });
+</script>
+
+</body>
+</html>
