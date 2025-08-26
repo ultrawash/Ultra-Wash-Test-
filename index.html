@@ -58,6 +58,12 @@
       font-size: var(--font-size-label);
     }
 
+    .description {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
     input[type="text"],
     input[type="tel"],
     input[type="datetime-local"],
@@ -118,10 +124,17 @@
       font-size: 13px;
       color: #555;
       margin-bottom: 16px;
+      line-height: 1.4;
     }
 
     .hidden {
       display: none;
+    }
+
+    #deliverySection input[type="checkbox"] {
+      margin-right: 6px;
+      transform: scale(0.9);
+      vertical-align: middle;
     }
 
     /* Popup styles */
@@ -191,21 +204,26 @@
 
   <div id="dynamicFields" class="hidden">
 
+    <!-- Pickup Section -->
     <div id="pickupSection" class="hidden">
-      <label id="pickupLabel" for="pickupAddress">Pickup Location</label>
-      <textarea id="pickupAddress" name="pickupAddress" placeholder="Enter your pickup address" rows="3"></textarea>
+      <label id="pickupLabel" for="pickupAddress">Address</label>
+      <div class="description">Please provide the address where we can pick up your laundry.</div>
+      <textarea id="pickupAddress" name="pickupAddress" placeholder="Enter pickup address" rows="3"></textarea>
       <button type="button" id="getLocationBtn">📍 Send My Exact Location</button>
       <div id="locationStatus"></div>
     </div>
 
+    <!-- Delivery Section -->
     <div id="deliverySection" class="hidden">
       <label id="deliveryLabel" for="deliveryAddress">Delivery Location</label>
+      <div class="description">Provide the address where you want your laundry delivered.</div>
       <input type="checkbox" id="sameAsPickup" checked /> Delivery address same as Pickup
-      <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Enter your delivery address" rows="3" class="hidden"></textarea>
+      <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Enter delivery address" rows="3" class="hidden"></textarea>
     </div>
 
-    <label for="pickupDate">Appointment Date & Time</label>
-    <div class="note">
+    <!-- Appointment Date/Time -->
+    <label id="dateLabel" for="pickupDate">Appointment Date & Time</label>
+    <div class="note" id="hoursNote">
       ⏰ Appointment hours:<br>
       • Monday–Friday: 08:00 AM – 05:00 PM<br>
       • Saturday: 08:00 AM – 12:00 PM<br>
@@ -213,7 +231,7 @@
     </div>
     <input type="datetime-local" id="pickupDate" name="pickupDate" required />
 
-    <button type="submit">Submit Appointment</button>
+    <button type="submit">Submit</button>
   </div>
 </form>
 
@@ -235,8 +253,11 @@
   const deliverySection = document.getElementById('deliverySection');
   const sameAsPickup = document.getElementById('sameAsPickup');
   const deliveryAddress = document.getElementById('deliveryAddress');
+  const pickupAddress = document.getElementById('pickupAddress');
   const getLocationBtn = document.getElementById('getLocationBtn');
   const locationStatus = document.getElementById('locationStatus');
+  const dateLabel = document.getElementById('dateLabel');
+  const hoursNote = document.getElementById('hoursNote');
 
   serviceSelect.addEventListener('change', () => {
     dynamicFields.classList.remove('hidden');
@@ -247,22 +268,33 @@
 
     if (service === 'Pick Up Only') {
       pickupSection.classList.remove('hidden');
+      document.getElementById('pickupLabel').textContent = 'Address';
       pickupAddress.required = true;
       deliveryAddress.required = false;
       sameAsPickup.checked = true;
+      sameAsPickup.style.display = 'none';
+      dateLabel.textContent = 'Appointment Date & Time';
+      hoursNote.innerHTML = "⏰ Appointment hours:<br>• Monday–Friday: 08:00 AM – 05:00 PM<br>• Saturday: 08:00 AM – 12:00 PM<br>• Sunday: Closed";
     } else if (service === 'Delivery Only') {
       deliverySection.classList.remove('hidden');
+      document.getElementById('deliveryLabel').textContent = 'Address';
+      pickupAddress.required = false;
+      deliveryAddress.required = true;
       sameAsPickup.style.display = 'none';
       deliveryAddress.classList.remove('hidden');
-      deliveryAddress.required = true;
-      pickupAddress.required = false;
+      dateLabel.textContent = 'Delivery Date & Time';
+      hoursNote.innerHTML = "⏰ Delivery hours:<br>• Monday–Friday: 08:00 AM – 05:00 PM<br>• Saturday: 08:00 AM – 12:00 PM<br>• Sunday: Closed";
     } else if (service === 'Pick Up & Delivery') {
       pickupSection.classList.remove('hidden');
       deliverySection.classList.remove('hidden');
+      document.getElementById('pickupLabel').textContent = 'Pick Up Location';
+      document.getElementById('deliveryLabel').textContent = 'Delivery Location';
       sameAsPickup.style.display = 'inline';
       deliveryAddress.classList.add('hidden');
       pickupAddress.required = true;
       deliveryAddress.required = false;
+      dateLabel.textContent = 'Delivery Date & Time';
+      hoursNote.innerHTML = "⏰ Delivery hours:<br>• Monday–Friday: 08:00 AM – 05:00 PM<br>• Saturday: 08:00 AM – 12:00 PM<br>• Sunday: Closed";
     }
   });
 
