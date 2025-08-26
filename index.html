@@ -304,7 +304,7 @@ function closePopup(){ document.getElementById('thankYouPopup').style.display='n
 // Load customer list from Google Apps Script
 async function loadCustomers() {
   try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbw23qOcgd3BYbMlKowzXUAtlys0l-obAMZC9lRyQLbPhDMQItd3PwVfJ9s76vv_gK_1BA/exec");
+    const response = await fetch("https://script.google.com/macros/s/AKfycbwRk-T3xGVFx0PzQSXqJ9piRLk8tXUWzcyDDHOfCxDuhLJ1V2PAPt87LETLZ1ZkbpnZmA/exec");
     const customers = await response.json();
     const customerRefSelect = document.getElementById("customerRef");
 
@@ -369,3 +369,4 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
 
 </body>
 </html>
+
