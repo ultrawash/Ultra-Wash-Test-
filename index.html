@@ -161,16 +161,22 @@ button[type="submit"]:hover { background-color: #e05343; }
         <label id="singleDateLabel">Date & Time</label>
         <div class="note" id="singleDateNote"></div>
         <input type="datetime-local" id="singleDateTime" name="singleDateTime" />
+
+        <!-- Hidden formatted field -->
+        <input type="hidden" id="singleDateFormatted" name="singleDateFormatted">
       </div>
 
       <div id="pickUpDeliverySection" style="display:none;">
         <label>Pick Up Location</label>
         <textarea id="pickupAddress" name="pickupAddress" placeholder="Enter your Address" rows="3"></textarea>
         <label for="pickupMapLink">Map Link</label>
-        <input id="pickupMapLink" name="pickupMapLink" type="text" placeholder="Paste Google Maps link or Coordinates" />
+        <input id="pickupMapLink" name="pickupMapLink" type="text" placeholder="Paste Google Maps link" />
         <label>Pick Up Date & Time</label>
         <div class="note">⏰ Pick Up hours:<br>• Monday–Friday: 08:30 AM – 04:30 PM<br>• Saturday: 08:30 AM – 11:30 AM<br>• Sunday: Closed</div>
         <input type="datetime-local" id="pickupDate" name="pickupDate" />
+
+        <!-- Hidden formatted field -->
+        <input type="hidden" id="pickupDateFormatted" name="pickupDateFormatted">
 
         <label>Delivery Location</label>
         <div id="sameAsPickupWrapper">
@@ -179,11 +185,14 @@ button[type="submit"]:hover { background-color: #e05343; }
         </div>
         <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Enter your Address" rows="3"></textarea>
         <label for="deliveryMapLink" id="deliveryMapLabel">Map Link</label>
-        <input id="deliveryMapLink" name="deliveryMapLink" type="text" placeholder="Paste Google Maps link or Coordinates" />
+        <input id="deliveryMapLink" name="deliveryMapLink" type="text" placeholder="Paste Google Maps link" />
         <div id="deliveryDateSection" style="display:none;">
           <label>Delivery Date & Time</label>
           <div class="note">⏰ Delivery hours:<br>• Monday–Friday: 08:30 AM – 04:30 PM<br>• Saturday: 08:30 AM – 11:30 AM<br>• Sunday: Closed</div>
           <input type="datetime-local" id="deliveryDate" name="deliveryDate" />
+
+          <!-- Hidden formatted field -->
+          <input type="hidden" id="deliveryDateFormatted" name="deliveryDateFormatted">
         </div>
       </div>
     </div>
@@ -295,7 +304,7 @@ function closePopup(){ document.getElementById('thankYouPopup').style.display='n
 // Load customer list from Google Apps Script
 async function loadCustomers() {
   try {
-    const response = await fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec");
+    const response = await fetch("https://script.google.com/macros/s/AKfycbw23qOcgd3BYbMlKowzXUAtlys0l-obAMZC9lRyQLbPhDMQItd3PwVfJ9s76vv_gK_1BA/exec");
     const customers = await response.json();
     const customerRefSelect = document.getElementById("customerRef");
 
@@ -303,8 +312,8 @@ async function loadCustomers() {
       let option = document.createElement("option");
       option.value = cust["Customer ID"] || cust["Phone"];
       option.textContent = `${cust["Name"]} (${cust["Phone"]})`;
-      option.dataset.maplink = cust["Map Link / Coordinates"] || "";
-      option.dataset.address = cust["Location Address"] || "";
+      option.dataset.maplink = cust["Map Link / Coordinates"];
+      option.dataset.address = cust["Location Address"];
       customerRefSelect.appendChild(option);
     });
 
@@ -319,9 +328,30 @@ async function loadCustomers() {
 }
 window.addEventListener("DOMContentLoaded", loadCustomers);
 
+// Function to get Brunei formatted date/time
+function getBruneiFormattedDateTime(inputId) {
+  const dt = document.getElementById(inputId).valueAsDate || new Date();
+  return dt.toLocaleString("en-US", {
+    timeZone: "Asia/Brunei",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true
+  });
+}
+
 // Submit handler
 document.getElementById('appointmentForm').addEventListener('submit', async function(e){
   e.preventDefault();
+
+  // Fill hidden formatted fields
+  document.getElementById('singleDateFormatted').value = getBruneiFormattedDateTime('singleDateTime');
+  document.getElementById('pickupDateFormatted').value = getBruneiFormattedDateTime('pickupDate');
+  document.getElementById('deliveryDateFormatted').value = getBruneiFormattedDateTime('deliveryDate');
+
   const formData=new FormData(this);
   try{
     const response=await fetch(this.action,{method:this.method,body:formData});
