@@ -205,8 +205,9 @@ button[type="submit"]:hover { background-color: #e05343; }
   <label for="serviceWorker">Service Type</label>
   <input id="serviceWorker" name="serviceWorker" type="text" readonly placeholder="Auto-filled from Customer Data" />
 
-  <!-- NEW: Customer Name -->
+  <!-- Hidden Customer Name and Phone -->
   <input id="customerNameWorker" name="customerNameWorker" type="hidden" />
+  <input id="customerPhoneWorker" name="customerPhoneWorker" type="hidden" />
 
   <label for="totalItems">Total Items</label>
   <input id="totalItems" name="totalItems" type="number" min="1" placeholder="Enter total items" />
@@ -309,23 +310,27 @@ async function loadCustomers() {
     const customerRefSelect = document.getElementById("customerRef");
 
     customers.forEach(cust => {
-      let option = document.createElement("option");
-      option.value = cust["Customer ID"] || cust["Phone"];
-      option.textContent = `${cust["Name"]} (${cust["Customer ID"]})`;
-      option.dataset.maplink = cust["Map Link / Coordinates"];
-      option.dataset.address = cust["Location Address"];
-      option.dataset.service = cust["Service Type"] || ""; // <-- Service Type
-      customerRefSelect.appendChild(option);
-    });
+  let option = document.createElement("option");
+  option.value = cust["Customer ID"] || cust["Phone"];
+  option.textContent = `${cust["Name"]} (${cust["Customer ID"]})`;
+  option.dataset.maplink = cust["Map Link / Coordinates"];
+  option.dataset.address = cust["Location Address"];
+  option.dataset.service = cust["Service Type"] || "";
+  option.dataset.name = cust["Name"];
+  option.dataset.phone = cust["Phone"];
+  customerRefSelect.appendChild(option);
+});
 
     customerRefSelect.addEventListener("change", function() {
   const selectedOption = this.options[this.selectedIndex];
   document.getElementById("mapLinkWorker").value = selectedOption.dataset.maplink || "";
   document.getElementById("serviceWorker").value = selectedOption.dataset.service || "";
   
-  // Auto-fill hidden customer name
-  document.getElementById("customerNameWorker").value = selectedOption.textContent || "";
+  // Auto-fill hidden fields
+  document.getElementById("customerNameWorker").value = selectedOption.dataset.name || "";
+  document.getElementById("customerPhoneWorker").value = selectedOption.dataset.phone || "";
 });
+
 
   } catch (err) {
     console.error("Error loading customers:", err);
