@@ -308,7 +308,7 @@ async function loadCustomers() {
     customers.forEach(cust => {
       let option = document.createElement("option");
       option.value = cust["Customer ID"] || cust["Phone"];
-      option.textContent = `${cust["Name"]} (${cust["Phone"]})`;
+      option.textContent = `${cust["Name"]} (${cust["Customer ID"]})`;
       option.dataset.maplink = cust["Map Link / Coordinates"];
       option.dataset.address = cust["Location Address"];
       option.dataset.service = cust["Service Type"] || ""; // <-- Service Type
@@ -388,5 +388,6 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
 
 </body>
 </html>
+
 
 
