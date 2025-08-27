@@ -199,6 +199,9 @@ button[type="submit"]:hover { background-color: #e05343; }
     <option value="" disabled selected>Select Customer</option>
   </select>
 
+  <label for="customerPhoneWorkerVisible">Phone Number</label>
+  <input id="customerPhoneWorkerVisible" name="customerPhoneWorkerVisible" type="tel" placeholder="Auto-filled from Customer Data" readonly />
+
   <label for="mapLinkWorker">Map Link</label>
   <input id="mapLinkWorker" name="mapLinkWorker" type="text" readonly placeholder="Auto-filled from Customer Data" />
 
@@ -222,8 +225,8 @@ button[type="submit"]:hover { background-color: #e05343; }
 <div id="thankYouPopup">
   <div class="popup-content">
     <div class="checkmark">✅</div>
-    <h1>Thank you for choosing UltraWash!</h1>
-    <p>Your appointment has been successfully submitted.<br>Our team will contact you shortly via WhatsApp.</p>
+    <h1>Thank you!</h1>
+    <p>Form has been successfully submitted.<br>Please update accordingly.</p>
     <button onclick="closePopup()">Close</button>
   </div>
 </div>
@@ -310,27 +313,25 @@ async function loadCustomers() {
     const customerRefSelect = document.getElementById("customerRef");
 
     customers.forEach(cust => {
-  let option = document.createElement("option");
-  option.value = cust["Customer ID"] || cust["Phone"];
-  option.textContent = `${cust["Name"]} (${cust["Customer ID"]})`;
-  option.dataset.maplink = cust["Map Link / Coordinates"];
-  option.dataset.address = cust["Location Address"];
-  option.dataset.service = cust["Service Type"] || "";
-  option.dataset.name = cust["Name"];
-  option.dataset.phone = cust["Phone"];
-  customerRefSelect.appendChild(option);
-});
+      let option = document.createElement("option");
+      option.value = cust["Customer ID"] || cust["Phone"];
+      option.textContent = `${cust["Name"]} (${cust["Customer ID"]})`;
+      option.dataset.maplink = cust["Map Link / Coordinates"];
+      option.dataset.address = cust["Location Address"];
+      option.dataset.service = cust["Service Type"] || "";
+      option.dataset.name = cust["Name"];
+      option.dataset.phone = cust["Phone"];
+      customerRefSelect.appendChild(option);
+    });
 
     customerRefSelect.addEventListener("change", function() {
-  const selectedOption = this.options[this.selectedIndex];
-  document.getElementById("mapLinkWorker").value = selectedOption.dataset.maplink || "";
-  document.getElementById("serviceWorker").value = selectedOption.dataset.service || "";
-  
-  // Auto-fill hidden fields
-  document.getElementById("customerNameWorker").value = selectedOption.dataset.name || "";
-  document.getElementById("customerPhoneWorker").value = selectedOption.dataset.phone || "";
-});
-
+      const selectedOption = this.options[this.selectedIndex];
+      document.getElementById("mapLinkWorker").value = selectedOption.dataset.maplink || "";
+      document.getElementById("serviceWorker").value = selectedOption.dataset.service || "";
+      document.getElementById("customerNameWorker").value = selectedOption.dataset.name || "";
+      document.getElementById("customerPhoneWorker").value = selectedOption.dataset.phone || "";
+      document.getElementById("customerPhoneWorkerVisible").value = selectedOption.dataset.phone || "N/A";
+    });
 
   } catch (err) {
     console.error("Error loading customers:", err);
@@ -374,17 +375,14 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
       pickUpDeliverySection.style.display = 'none';
       document.getElementById('deliveryDateSection').style.display = 'none';
 
-      // REMOVE selected customer from the Update Form dropdown
       if(formMode.value === 'update'){
         const customerSelect = document.getElementById('customerRef');
         const selectedIndex = customerSelect.selectedIndex;
-        if(selectedIndex > 0){ // ignore the placeholder option
-          customerSelect.remove(selectedIndex);
-        }
-        // Reset to placeholder
+        if(selectedIndex > 0){ customerSelect.remove(selectedIndex); }
         customerSelect.selectedIndex = 0;
         document.getElementById('mapLinkWorker').value = ""; 
-        document.getElementById('serviceWorker').value = ""; // clear service field
+        document.getElementById('serviceWorker').value = "";
+        document.getElementById('customerPhoneWorkerVisible').value = "";
       }
 
     } else { 
