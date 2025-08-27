@@ -311,7 +311,7 @@ async function loadCustomers() {
       option.textContent = `${cust["Name"]} (${cust["Phone"]})`;
       option.dataset.maplink = cust["Map Link / Coordinates"];
       option.dataset.address = cust["Location Address"];
-      option.dataset.service = cust["Service"] || ""; // <-- Service Type
+      option.dataset.service = cust["Service Type"] || ""; // <-- Service Type
       customerRefSelect.appendChild(option);
     });
 
@@ -388,4 +388,5 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
 
 </body>
 </html>
+
 
