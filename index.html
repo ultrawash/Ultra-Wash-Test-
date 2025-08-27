@@ -193,24 +193,27 @@ button[type="submit"]:hover { background-color: #e05343; }
   </div>
 
   <!-- Update Form (Worker Form) -->
-  <div id="updateForm" style="display:none;">
-    <label for="customerRef">Customer Reference (Phone/ID)</label>
-    <select id="customerRef" name="customerRef" required>
-      <option value="" disabled selected>Select Customer</option>
-    </select>
+<div id="updateForm" style="display:none;">
+  <label for="customerRef">Customer Reference (Phone/ID)</label>
+  <select id="customerRef" name="customerRef" required>
+    <option value="" disabled selected>Select Customer</option>
+  </select>
 
-    <label for="mapLinkWorker">Map Link</label>
-    <input id="mapLinkWorker" name="mapLinkWorker" type="text" readonly placeholder="Auto-filled from Customer Data" />
+  <label for="mapLinkWorker">Map Link</label>
+  <input id="mapLinkWorker" name="mapLinkWorker" type="text" readonly placeholder="Auto-filled from Customer Data" />
 
-    <label for="serviceWorker">Service Type</label>
-    <input id="serviceWorker" name="serviceWorker" type="text" readonly placeholder="Auto-filled from Customer Data" />
+  <label for="serviceWorker">Service Type</label>
+  <input id="serviceWorker" name="serviceWorker" type="text" readonly placeholder="Auto-filled from Customer Data" />
 
-    <label for="totalItems">Total Items</label>
-    <input id="totalItems" name="totalItems" type="number" min="1" placeholder="Enter total items" />
+  <!-- NEW: Customer Name -->
+  <input id="customerNameWorker" name="customerNameWorker" type="hidden" />
 
-    <label for="totalWeight">Total Weight (kg)</label>
-    <input id="totalWeight" name="totalWeight" type="number" min="0" step="0.1" placeholder="Enter total weight" />
-  </div>
+  <label for="totalItems">Total Items</label>
+  <input id="totalItems" name="totalItems" type="number" min="1" placeholder="Enter total items" />
+
+  <label for="totalWeight">Total Weight (kg)</label>
+  <input id="totalWeight" name="totalWeight" type="number" min="0" step="0.1" placeholder="Enter total weight" />
+</div>
 
   <button type="submit">Submit</button>
 </form>
@@ -316,10 +319,13 @@ async function loadCustomers() {
     });
 
     customerRefSelect.addEventListener("change", function() {
-      const selectedOption = this.options[this.selectedIndex];
-      document.getElementById("mapLinkWorker").value = selectedOption.dataset.maplink || "";
-      document.getElementById("serviceWorker").value = selectedOption.dataset.service || ""; // <-- auto-fill service
-    });
+  const selectedOption = this.options[this.selectedIndex];
+  document.getElementById("mapLinkWorker").value = selectedOption.dataset.maplink || "";
+  document.getElementById("serviceWorker").value = selectedOption.dataset.service || "";
+  
+  // Auto-fill hidden customer name
+  document.getElementById("customerNameWorker").value = selectedOption.textContent || "";
+});
 
   } catch (err) {
     console.error("Error loading customers:", err);
@@ -388,6 +394,3 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
 
 </body>
 </html>
-
-
-
