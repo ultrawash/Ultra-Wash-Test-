@@ -120,6 +120,17 @@ button[type="submit"]:hover { background-color: #e05343; }
 }
 #sameAsPickupWrapper { margin-bottom: 8px; }
 .same-as-active { margin-bottom: 40px; }
+.pricing-details {
+  background-color: #f9f9f9;
+  border-left: 4px solid #5a4cc2;
+  padding: 10px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+}
+.auto-filled {
+  background-color: #f0f7ff;
+  border-left: 4px solid #4a90e2;
+}
 </style>
 </head>
 <body>
@@ -142,6 +153,41 @@ button[type="submit"]:hover { background-color: #e05343; }
 
     <label for="phone">Phone Number</label>
     <input id="phone" name="phone" type="tel" placeholder="+673 8221133 / 8221133" />
+
+    <!-- Service Package Field -->
+    <label for="pricingService">Service Package</label>
+    <select id="pricingService" name="pricingService">
+      <option value="">-- Select Package --</option>
+      <option value="membership">Membership</option>
+      <option value="jimat">Jimat Cuci Bersama</option>
+      <option value="wash">Wash, Dry & Fold</option>
+      <option value="folding">Folding</option>
+      <option value="ironing">Ironing</option>
+    </select>
+
+    <!-- Membership options -->
+    <div id="membershipFields" style="display:none;">
+      <label for="membershipPlan">Membership Plan</label>
+      <select id="membershipPlan" name="membershipPlan">
+        <option value="">-- Select Plan --</option>
+        <option value="120">$120 – 12 trips (60kg)</option>
+        <option value="100">$100 – 2x/week (max 50kg, 1 address)</option>
+      </select>
+    </div>
+
+    <!-- Jimat options -->
+    <div id="jimatFields" style="display:none;">
+      <label for="jimatPlan">Jimat Cuci Bersama</label>
+      <select id="jimatPlan" name="jimatPlan">
+        <option value="">-- Select Box --</option>
+        <option value="16">$16 / 1 box</option>
+        <option value="28">$28 / 2 boxes</option>
+        <option value="40">$40 / 4 boxes</option>
+      </select>
+    </div>
+
+    <!-- Static Price Display (No Live Calculation) -->
+    <div class="note"><strong>Price will be calculated after selection</strong></div>
 
     <label for="service">Service</label>
     <select id="service" name="service">
@@ -193,31 +239,76 @@ button[type="submit"]:hover { background-color: #e05343; }
   </div>
 
   <!-- Update Form (Worker Form) -->
-<div id="updateForm" style="display:none;">
-  <label for="customerRef">Customer Reference (Phone/ID)</label>
-  <select id="customerRef" name="customerRef" required>
-    <option value="" disabled selected>Select Customer</option>
-  </select>
+  <div id="updateForm" style="display:none;">
+    <label for="customerRef">Customer Reference (Phone/ID)</label>
+    <select id="customerRef" name="customerRef" required>
+      <option value="" disabled selected>Select Customer</option>
+    </select>
 
-  <label for="customerPhoneWorkerVisible">Phone Number</label>
-  <input id="customerPhoneWorkerVisible" name="customerPhoneWorkerVisible" type="tel" placeholder="Auto-filled from Customer Data" readonly />
+    <!-- Hidden Phone Number (for backend only) -->
+    <input id="customerPhoneWorker" name="customerPhoneWorker" type="hidden" />
 
-  <label for="mapLinkWorker">Map Link</label>
-  <input id="mapLinkWorker" name="mapLinkWorker" type="text" readonly placeholder="Auto-filled from Customer Data" />
+    <label for="mapLinkWorker">Map Link</label>
+    <input id="mapLinkWorker" name="mapLinkWorker" type="text" readonly placeholder="Auto-filled from Customer Data" class="auto-filled" />
 
-  <label for="serviceWorker">Service Type</label>
-  <input id="serviceWorker" name="serviceWorker" type="text" readonly placeholder="Auto-filled from Customer Data" />
+    <label for="serviceWorker">Service Type</label>
+    <input id="serviceWorker" name="serviceWorker" type="text" readonly placeholder="Auto-filled from Customer Data" class="auto-filled" />
 
-  <!-- Hidden Customer Name and Phone -->
-  <input id="customerNameWorker" name="customerNameWorker" type="hidden" />
-  <input id="customerPhoneWorker" name="customerPhoneWorker" type="hidden" />
+    <!-- Hidden Customer Name -->
+    <input id="customerNameWorker" name="customerNameWorker" type="hidden" />
 
-  <label for="totalItems">Total Items</label>
-  <input id="totalItems" name="totalItems" type="number" min="1" placeholder="Enter total items" />
+    <!-- Service Package Field for Update Form (Readonly) -->
+    <label for="pricingServiceUpdate">Service Package</label>
+    <input id="pricingServiceUpdateDisplay" name="pricingServiceUpdateDisplay" type="text" readonly class="auto-filled" />
+    <input id="pricingServiceUpdate" name="pricingServiceUpdate" type="hidden" />
 
-  <label for="totalWeight">Total Weight (kg)</label>
-  <input id="totalWeight" name="totalWeight" type="number" min="0" step="0.1" placeholder="Enter total weight" />
-</div>
+    <!-- Update Form Pricing Fields -->
+    <div id="membershipFieldsUpdate" style="display:none;">
+      <label for="membershipPlanUpdate">Membership Plan</label>
+      <select id="membershipPlanUpdate" name="membershipPlanUpdate">
+        <option value="">-- Select Plan --</option>
+        <option value="120">$120 – 12 trips (60kg)</option>
+        <option value="100">$100 – 2x/week (max 50kg, 1 address)</option>
+      </select>
+    </div>
+
+    <div id="jimatFieldsUpdate" style="display:none;">
+      <label for="jimatPlanUpdate">Jimat Cuci Bersama</label>
+      <select id="jimatPlanUpdate" name="jimatPlanUpdate">
+        <option value="">-- Select Box --</option>
+        <option value="16">$16 / 1 box</option>
+        <option value="28">$28 / 2 boxes</option>
+        <option value="40">$40 / 4 boxes</option>
+      </select>
+    </div>
+
+    <div id="washFieldsUpdate" style="display:none;">
+      <label for="washKgUpdate">Weight (kg)</label>
+      <input type="number" id="washKgUpdate" name="washKgUpdate" min="1" step="1" />
+    </div>
+
+    <div id="foldingFieldsUpdate" style="display:none;">
+      <label for="foldKgUpdate">Weight (kg)</label>
+      <input type="number" id="foldKgUpdate" name="foldKgUpdate" min="1" step="1" />
+    </div>
+
+    <div id="ironingFieldsUpdate" style="display:none;">
+      <label for="ironPcsUpdate">Number of Pieces</label>
+      <input type="number" id="ironPcsUpdate" name="ironPcsUpdate" min="1" step="1" />
+    </div>
+
+    <!-- Live Calculation for Update Form -->
+    <div class="pricing-details">
+      <strong>Total Price: <span id="totalPriceUpdate">--</span></strong><br>
+      <strong>Price Breakdown: <span id="priceBreakdownUpdate">--</span></strong>
+    </div>
+
+    <label for="totalItems">Total Items</label>
+    <input id="totalItems" name="totalItems" type="number" min="1" placeholder="Enter total items" />
+
+    <label for="totalWeight">Total Weight (kg)</label>
+    <input id="totalWeight" name="totalWeight" type="number" min="0" step="0.1" placeholder="Enter total weight" />
+  </div>
 
   <button type="submit">Submit</button>
 </form>
@@ -321,6 +412,9 @@ async function loadCustomers() {
       option.dataset.service = cust["Service Type"] || "";
       option.dataset.name = cust["Name"];
       option.dataset.phone = cust["Phone"];
+      option.dataset.package = cust["Service Package"] || "";
+      option.dataset.plan = cust["Plan Details"] || "";
+      option.dataset.quantity = cust["Quantity"] || "";
       customerRefSelect.appendChild(option);
     });
 
@@ -330,13 +424,57 @@ async function loadCustomers() {
       document.getElementById("serviceWorker").value = selectedOption.dataset.service || "";
       document.getElementById("customerNameWorker").value = selectedOption.dataset.name || "";
       document.getElementById("customerPhoneWorker").value = selectedOption.dataset.phone || "";
-      document.getElementById("customerPhoneWorkerVisible").value = selectedOption.dataset.phone || "N/A";
+      
+      // Auto-fill service package and pricing details
+      if (selectedOption.dataset.package) {
+        const packageValue = selectedOption.dataset.package;
+        const packageDisplay = getPackageDisplayName(packageValue);
+        
+        document.getElementById("pricingServiceUpdateDisplay").value = packageDisplay;
+        document.getElementById("pricingServiceUpdate").value = packageValue;
+        
+        showPricingFieldsUpdate();
+        
+        // Auto-fill plan details based on package type
+        if (packageValue === "membership" && selectedOption.dataset.plan) {
+          document.getElementById("membershipPlanUpdate").value = selectedOption.dataset.plan;
+        } else if (packageValue === "jimat" && selectedOption.dataset.plan) {
+          document.getElementById("jimatPlanUpdate").value = selectedOption.dataset.plan;
+        } else if (packageValue === "wash" && selectedOption.dataset.quantity) {
+          document.getElementById("washKgUpdate").value = selectedOption.dataset.quantity;
+        } else if (packageValue === "folding" && selectedOption.dataset.quantity) {
+          document.getElementById("foldKgUpdate").value = selectedOption.dataset.quantity;
+        } else if (packageValue === "ironing" && selectedOption.dataset.quantity) {
+          document.getElementById("ironPcsUpdate").value = selectedOption.dataset.quantity;
+        }
+        
+        // Calculate price after auto-filling
+        calcPriceUpdate();
+      } else {
+        // If no package data, clear the fields
+        document.getElementById("pricingServiceUpdateDisplay").value = "";
+        document.getElementById("pricingServiceUpdate").value = "";
+        hideAllPricingUpdate();
+      }
     });
 
   } catch (err) {
     console.error("Error loading customers:", err);
   }
 }
+
+// Helper function to get display name for package
+function getPackageDisplayName(value) {
+  const packages = {
+    "membership": "Membership",
+    "jimat": "Jimat Cuci Bersama",
+    "wash": "Wash, Dry & Fold",
+    "folding": "Folding",
+    "ironing": "Ironing"
+  };
+  return packages[value] || value;
+}
+
 window.addEventListener("DOMContentLoaded", loadCustomers);
 
 // Function to get Brunei formatted date/time
@@ -354,14 +492,123 @@ function getBruneiFormattedDateTime(inputId) {
   });
 }
 
+// === Pricing logic for Customer Form ===
+const pricingService = document.getElementById('pricingService');
+const membershipFields = document.getElementById('membershipFields');
+const jimatFields = document.getElementById('jimatFields');
+
+// Hide all pricing fields initially
+function hideAllPricingCustomer() {
+  [membershipFields, jimatFields].forEach(div => div.style.display = 'none');
+}
+
+// Show only membership and jimat fields for customer form
+pricingService.addEventListener('change', () => {
+  hideAllPricingCustomer();
+  if(pricingService.value==='membership') membershipFields.style.display='block';
+  if(pricingService.value==='jimat') jimatFields.style.display='block';
+});
+
+// === Pricing logic for Update Form ===
+const totalPriceUpdateEl = document.getElementById('totalPriceUpdate');
+const membershipFieldsUpdate = document.getElementById('membershipFieldsUpdate');
+const jimatFieldsUpdate = document.getElementById('jimatFieldsUpdate');
+const washFieldsUpdate = document.getElementById('washFieldsUpdate');
+const foldingFieldsUpdate = document.getElementById('foldingFieldsUpdate');
+const ironingFieldsUpdate = document.getElementById('ironingFieldsUpdate');
+const membershipPlanUpdate = document.getElementById('membershipPlanUpdate');
+const jimatPlanUpdate = document.getElementById('jimatPlanUpdate');
+const washKgUpdate = document.getElementById('washKgUpdate');
+const foldKgUpdate = document.getElementById('foldKgUpdate');
+const ironPcsUpdate = document.getElementById('ironPcsUpdate');
+
+function hideAllPricingUpdate() {
+  [membershipFieldsUpdate, jimatFieldsUpdate, washFieldsUpdate, foldingFieldsUpdate, ironingFieldsUpdate]
+    .forEach(div => div.style.display = 'none');
+  totalPriceUpdateEl.textContent = '--';
+  document.getElementById('priceBreakdownUpdate').textContent = '--';
+}
+
+function showPricingFieldsUpdate() {
+  hideAllPricingUpdate();
+  const packageValue = document.getElementById("pricingServiceUpdate").value;
+  
+  if(packageValue==='membership') {
+    membershipFieldsUpdate.style.display='block';
+  } else if(packageValue==='jimat') {
+    jimatFieldsUpdate.style.display='block';
+  } else if(packageValue==='wash') {
+    washFieldsUpdate.style.display='block';
+  } else if(packageValue==='folding') {
+    foldingFieldsUpdate.style.display='block';
+  } else if(packageValue==='ironing') {
+    ironingFieldsUpdate.style.display='block';
+  }
+}
+
+function calcPriceUpdate() {
+  let price = 0;
+  let breakdown = '';
+  const packageValue = document.getElementById("pricingServiceUpdate").value;
+  
+  switch(packageValue) {
+    case 'membership':
+      if(membershipPlanUpdate.value){
+        price = parseFloat(membershipPlanUpdate.value);
+        breakdown = `$${price.toFixed(2)} (${membershipPlanUpdate.options[membershipPlanUpdate.selectedIndex].text})`;
+      }
+      break;
+    case 'jimat':
+      if(jimatPlanUpdate.value){
+        price = parseFloat(jimatPlanUpdate.value);
+        breakdown = `$${price.toFixed(2)} (${jimatPlanUpdate.options[jimatPlanUpdate.selectedIndex].text})`;
+      }
+      break;
+    case 'wash':
+      const kg = parseInt(washKgUpdate.value) || 0;
+      if(kg>0){
+        if(kg<=5) price=10;
+        else if(kg<=8) price=12;
+        else if(kg<=13) price=16;
+        else price=16+(kg-13)*1.2;
+        breakdown = kg>13 ? `Base 13kg = $16 + ${kg-13}kg×$1.20 = $${price.toFixed(2)}` : `$${price.toFixed(2)} for ${kg}kg`;
+      }
+      break;
+    case 'folding':
+      const fkg = parseInt(foldKgUpdate.value) || 0;
+      if(fkg>0){
+        if(fkg<=7) price=2;
+        else price=2+Math.floor((fkg-7)/2)*1;
+        breakdown = `$${price.toFixed(2)} for ${fkg}kg`;
+      }
+      break;
+    case 'ironing':
+      const pcs = parseInt(ironPcsUpdate.value) || 0;
+      if(pcs>0){
+        price=pcs*1;
+        breakdown = `$${price.toFixed(2)} for ${pcs} pieces`;
+      }
+      break;
+  }
+  totalPriceUpdateEl.textContent = price>0 ? "$"+price.toFixed(2) : "--";
+  document.getElementById('priceBreakdownUpdate').textContent = breakdown || '--';
+}
+
+[membershipPlanUpdate, jimatPlanUpdate, washKgUpdate, foldKgUpdate, ironPcsUpdate].forEach(el=>{
+  el.addEventListener('input', calcPriceUpdate);
+  el.addEventListener('change', calcPriceUpdate);
+});
+
 // Submit handler
 document.getElementById('appointmentForm').addEventListener('submit', async function(e){
   e.preventDefault();
 
-  // Fill hidden formatted fields
-  document.getElementById('singleDateFormatted').value = getBruneiFormattedDateTime('singleDateTime');
-  document.getElementById('pickupDateFormatted').value = getBruneiFormattedDateTime('pickupDate');
-  document.getElementById('deliveryDateFormatted').value = getBruneiFormattedDateTime('deliveryDate');
+  // Fill hidden formatted fields for customer form
+  if(formMode.value === 'customer') {
+    document.getElementById('singleDateFormatted').value = getBruneiFormattedDateTime('singleDateTime');
+    document.getElementById('pickupDateFormatted').value = getBruneiFormattedDateTime('pickupDate');
+    document.getElementById('deliveryDateFormatted').value = getBruneiFormattedDateTime('deliveryDate');
+  }
 
   const formData = new FormData(this);
 
@@ -374,6 +621,8 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
       singleAddressSection.style.display = 'none';
       pickUpDeliverySection.style.display = 'none';
       document.getElementById('deliveryDateSection').style.display = 'none';
+      hideAllPricingCustomer();
+      hideAllPricingUpdate();
 
       if(formMode.value === 'update'){
         const customerSelect = document.getElementById('customerRef');
@@ -382,7 +631,8 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
         customerSelect.selectedIndex = 0;
         document.getElementById('mapLinkWorker').value = ""; 
         document.getElementById('serviceWorker').value = "";
-        document.getElementById('customerPhoneWorkerVisible').value = "";
+        document.getElementById('pricingServiceUpdateDisplay').value = "";
+        document.getElementById('pricingServiceUpdate').value = "";
       }
 
     } else { 
@@ -392,6 +642,12 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
     alert('Error submitting the form. Check your internet connection.');
     console.error(err);
   }
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  hideAllPricingCustomer();
+  hideAllPricingUpdate();
 });
 </script>
 
