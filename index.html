@@ -278,7 +278,7 @@ button[type="submit"]:hover { background-color: #e05343; }
     <!-- Update Form Pricing Fields -->
     <div id="membershipFieldsUpdate" style="display:none;">
       <label for="membershipPlanUpdate">Membership Plan</label>
-      <select id="membershipPlanUpdate" name="membershipPlanUpdate">
+      <select id="membershipPlanUpdate" name="membershipPlanUpdate" disabled>
         <option value="">-- Select Plan --</option>
         <option value="120-12-60">$120 – 12 trips (60kg)</option>
         <option value="100-2-50">$100 – 2x/week (max 50kg, 1 address)</option>
@@ -287,7 +287,7 @@ button[type="submit"]:hover { background-color: #e05343; }
 
     <div id="jimatFieldsUpdate" style="display:none;">
       <label for="jimatPlanUpdate">Jimat Cuci Bersama</label>
-      <select id="jimatPlanUpdate" name="jimatPlanUpdate">
+      <select id="jimatPlanUpdate" name="jimatPlanUpdate" disabled>
         <option value="">-- Select Box --</option>
         <option value="16">$16 / 1 box</option>
         <option value="28">$28 / 2 boxes</option>
@@ -325,23 +325,16 @@ button[type="submit"]:hover { background-color: #e05343; }
         <span id="tripsBalance">Trips: --</span><br>
         <span id="weightBalance">Weight: -- kg</span>
       </div>
-      
-      <div class="note">
-        This information will be used to update the customer's membership balance.
-      </div>
     </div>
 
-    <!-- Live Calculation for Update Form -->
-    <div class="pricing-details">
+    <!-- Live Calculation for Update Form (Hidden for membership) -->
+    <div id="pricingDetailsUpdate" class="pricing-details" style="display:none;">
       <strong>Total Price: <span id="totalPriceUpdate">--</span></strong><br>
       <strong>Price Breakdown: <span id="priceBreakdownUpdate">--</span></strong>
     </div>
 
     <label for="totalItems">Total Items</label>
     <input id="totalItems" name="totalItems" type="number" min="1" placeholder="Enter total items" />
-
-    <label for="totalWeight">Total Weight (kg)</label>
-    <input id="totalWeight" name="totalWeight" type="number" min="0" step="0.1" placeholder="Enter total weight" />
   </div>
 
   <button type="submit">Submit</button>
@@ -472,10 +465,12 @@ async function loadCustomers() {
         // Show/hide membership usage section based on package type
         if (packageValue === "membership") {
           document.getElementById("membershipUsageSection").style.display = "block";
+          document.getElementById("pricingDetailsUpdate").style.display = "none"; // Hide pricing for membership
           // Load membership balance
           loadMembershipBalance(selectedOption.dataset.phone);
         } else {
           document.getElementById("membershipUsageSection").style.display = "none";
+          document.getElementById("pricingDetailsUpdate").style.display = "block"; // Show pricing for non-membership
         }
         
         // Auto-fill plan details based on package type
@@ -491,13 +486,16 @@ async function loadCustomers() {
           document.getElementById("ironPcsUpdate").value = selectedOption.dataset.quantity;
         }
         
-        // Calculate price after auto-filling
-        calcPriceUpdate();
+        // Calculate price after auto-filling (for non-membership packages)
+        if (packageValue !== "membership") {
+          calcPriceUpdate();
+        }
       } else {
         // If no package data, clear the fields
         document.getElementById("pricingServiceUpdateDisplay").value = "";
         document.getElementById("pricingServiceUpdate").value = "";
         document.getElementById("membershipUsageSection").style.display = "none";
+        document.getElementById("pricingDetailsUpdate").style.display = "none";
         hideAllPricingUpdate();
       }
     });
@@ -669,13 +667,14 @@ function calcPriceUpdate() {
   let breakdown = '';
   const packageValue = document.getElementById("pricingServiceUpdate").value;
   
+  // Skip calculation for membership
+  if (packageValue === "membership") {
+    totalPriceUpdateEl.textContent = "--";
+    document.getElementById('priceBreakdownUpdate').textContent = "--";
+    return;
+  }
+  
   switch(packageValue) {
-    case 'membership':
-      if(membershipPlanUpdate.value){
-        price = parseFloat(membershipPlanUpdate.value.split('-')[0]);
-        breakdown = `$${price.toFixed(2)} (${membershipPlanUpdate.options[membershipPlanUpdate.selectedIndex].text})`;
-      }
-      break;
     case 'jimat':
       if(jimatPlanUpdate.value){
         price = parseFloat(jimatPlanUpdate.value);
@@ -712,7 +711,8 @@ function calcPriceUpdate() {
   document.getElementById('priceBreakdownUpdate').textContent = breakdown || '--';
 }
 
-[membershipPlanUpdate, jimatPlanUpdate, washKgUpdate, foldKgUpdate, ironPcsUpdate].forEach(el=>{
+// Add event listeners for price calculation (excluding membership)
+[jimatPlanUpdate, washKgUpdate, foldKgUpdate, ironPcsUpdate].forEach(el=>{
   el.addEventListener('input', calcPriceUpdate);
   el.addEventListener('change', calcPriceUpdate);
 });
@@ -765,6 +765,7 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
       hideAllPricingCustomer();
       hideAllPricingUpdate();
       document.getElementById("membershipUsageSection").style.display = "none";
+      document.getElementById("pricingDetailsUpdate").style.display = "none";
 
       if(formMode.value === 'update'){
         const customerSelect = document.getElementById('customerRef');
@@ -786,13 +787,8 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
   }
 });
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-  hideAllPricingCustomer();
-  hideAllPricingUpdate();
-  document.getElementById("membershipUsageSection").style.display = "none";
-  addBusinessHoursValidation();
-});
+// Initialize business hours validation
+addBusinessHoursValidation();
 </script>
 </body>
 </html>
