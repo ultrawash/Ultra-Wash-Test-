@@ -740,29 +740,6 @@ if (ironPcsUpdate) ironPcsUpdate.addEventListener('input', calcPriceUpdate);
 // Initialize form
 hideAllPricingCustomer();
 hideAllPricingUpdate();
-
-// Add this to your script section
-document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  
-  try {
-    const formData = new FormData(this);
-    const response = await fetch(this.action, {
-      method: this.method,
-      body: formData
-    });
-    
-    if (response.ok) {
-      // Show thank you popup instead of redirecting
-      document.getElementById('thankYouPopup').style.display = 'flex';
-    } else {
-      alert('Error submitting form');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    alert('Error submitting form');
-  }
-});
 </script>
 </body>
 </html>
