@@ -148,7 +148,8 @@ button[type="submit"]:hover { background-color: #e05343; }
 </head>
 <body>
 
-<form id="appointmentForm" method="POST" action="https://risetotop.app.n8n.cloud/webhook-test/uw-admin" novalidate>
+<!-- Remove the action attribute and let JavaScript handle submission -->
+<form id="appointmentForm" novalidate>
   <h1>Ultra Wash Appointment</h1>
 
   <!-- Form Type Selection -->
@@ -425,7 +426,18 @@ sameAsPickup.addEventListener('change', () => {
 });
 
 // Close popup
-function closePopup(){ document.getElementById('thankYouPopup').style.display='none'; }
+function closePopup(){ 
+  document.getElementById('thankYouPopup').style.display='none'; 
+  // Optionally reset the form after successful submission
+  document.getElementById('appointmentForm').reset();
+  // Reset form visibility
+  customerForm.style.display = 'none';
+  updateForm.style.display = 'none';
+  serviceFields.style.display = 'none';
+  singleAddressSection.style.display = 'none';
+  pickUpDeliverySection.style.display = 'none';
+  formMode.selectedIndex = 0;
+}
 
 // Function to update membership balance in real-time
 function updateMembershipBalance() {
@@ -740,6 +752,63 @@ if (ironPcsUpdate) ironPcsUpdate.addEventListener('input', calcPriceUpdate);
 // Initialize form
 hideAllPricingCustomer();
 hideAllPricingUpdate();
+
+// ===== NEW: AJAX FORM SUBMISSION =====
+document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
+  e.preventDefault(); // Prevent default form submission
+  
+  // Format date fields before submission
+  if (document.getElementById('singleDateTime') && document.getElementById('singleDateTime').value) {
+    document.getElementById('singleDateFormatted').value = getBruneiFormattedDateTime('singleDateTime');
+  }
+  if (document.getElementById('pickupDate') && document.getElementById('pickupDate').value) {
+    document.getElementById('pickupDateFormatted').value = getBruneiFormattedDateTime('pickupDate');
+  }
+  if (document.getElementById('deliveryDate') && document.getElementById('deliveryDate').value) {
+    document.getElementById('deliveryDateFormatted').value = getBruneiFormattedDateTime('deliveryDate');
+  }
+  
+  // Create form data object
+  const formData = new FormData(this);
+  
+  try {
+    // Show loading state (optional)
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Submitting...';
+    submitBtn.disabled = true;
+    
+    // Send data via AJAX
+    const response = await fetch('https://risetotop.app.n8n.cloud/webhook-test/uw-admin', {
+      method: 'POST',
+      body: formData
+    });
+    
+    // Check if the response is OK
+    if (response.ok) {
+      // Show success message
+      document.getElementById('thankYouPopup').style.display = 'flex';
+    } else {
+      // Handle error response
+      throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+    }
+    
+  } catch (error) {
+    // Handle any errors
+    console.error('Submission error:', error);
+    alert('There was an error submitting the form. Please try again.');
+  } finally {
+    // Restore button state (if needed)
+    const submitBtn = this.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.textContent = 'Submit';
+      submitBtn.disabled = false;
+    }
+  }
+});
+
+// Initialize business hours validation
+addBusinessHoursValidation();
 </script>
 </body>
 </html>
