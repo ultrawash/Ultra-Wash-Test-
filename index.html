@@ -144,6 +144,98 @@ button[type="submit"]:hover { background-color: #e05343; }
   color: #2c3e50;
   font-size: 16px;
 }
+
+/* NEW: Custom dropdown styles */
+.custom-dropdown {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.dropdown-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  background-color: white;
+}
+
+.dropdown-select:after {
+  content: "▼";
+  font-size: 12px;
+  transition: transform 0.2s;
+}
+
+.dropdown-select.open:after {
+  transform: rotate(180deg);
+}
+
+.dropdown-search {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  box-sizing: border-box;
+  display: none;
+}
+
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius);
+  background: white;
+  z-index: 100;
+  display: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.dropdown-options.open {
+  display: block;
+}
+
+.dropdown-option {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dropdown-option:last-child {
+  border-bottom: none;
+}
+
+.dropdown-option:hover {
+  background-color: #f6f7fa;
+}
+
+.dropdown-option.selected {
+  background-color: #e6f7ff;
+  font-weight: 600;
+}
+
+/* Scrollable select styling */
+.scrollable-select {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+.scrollable-select select {
+  border: none;
+  margin-bottom: 0;
+}
+.scrollable-select select:focus {
+  outline: none;
+  box-shadow: none;
+}
 </style>
 </head>
 <body>
@@ -255,9 +347,16 @@ button[type="submit"]:hover { background-color: #e05343; }
   <!-- Update Form (Worker Form) -->
   <div id="updateForm" style="display:none;">
     <label for="customerRef">Customer Reference (Phone/ID)</label>
-    <select id="customerRef" name="customerRef" required>
-      <option value="" disabled selected>Select Customer</option>
-    </select>
+    
+    <!-- NEW: Custom dropdown implementation -->
+    <div class="custom-dropdown" id="customerRefDropdown">
+      <div class="dropdown-select" id="customerRefSelect">
+        <span>Select Customer</span>
+      </div>
+      <input type="text" class="dropdown-search" id="customerRefSearch" placeholder="Search customers...">
+      <div class="dropdown-options" id="customerRefOptions"></div>
+      <input type="hidden" id="customerRef" name="customerRef" required>
+    </div>
 
     <!-- Hidden Phone Number (for backend only) -->
     <input id="customerPhoneWorker" name="customerPhoneWorker" type="hidden" />
@@ -351,9 +450,10 @@ button[type="submit"]:hover { background-color: #e05343; }
 </div>
 
 <script>
-// Global variables to store membership balance
+// Global variables to store membership balance and customers
 let currentTripsBalance = 0;
 let currentWeightBalance = 0;
+let allCustomers = [];
 
 const formMode = document.getElementById('formMode');
 const customerForm = document.getElementById('customerForm');
@@ -367,6 +467,13 @@ const sameAsPickupWrapper = document.getElementById('sameAsPickupWrapper');
 const deliveryAddress = document.getElementById('deliveryAddress');
 const deliveryMapLink = document.getElementById('deliveryMapLink');
 const deliveryMapLabel = document.getElementById('deliveryMapLabel');
+
+// NEW: Custom dropdown elements
+const customerRefDropdown = document.getElementById('customerRefDropdown');
+const customerRefSelect = document.getElementById('customerRefSelect');
+const customerRefSearch = document.getElementById('customerRefSearch');
+const customerRefOptions = document.getElementById('customerRefOptions');
+const customerRefHidden = document.getElementById('customerRef');
 
 // Switch form modes
 formMode.addEventListener('change', () => {
@@ -494,38 +601,91 @@ async function loadMembershipBalance(phoneNumber) {
   }
 }
 
-// Load customer list from Google Apps Script
-async function loadCustomers() {
-  try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbwRk-T3xGVFx0PzQSXqJ9piRLk8tXUWzcyDDHOfCxDuhLJ1V2PAPt87LETLZ1ZkbpnZmA/exec");
-    const customers = await response.json();
-    const customerRefSelect = document.getElementById("customerRef");
-
-    customers.forEach(cust => {
-      let option = document.createElement("option");
-      option.value = cust["Customer ID"] || cust["Phone"];
-      option.textContent = `${cust["Name"]} (${cust["Customer ID"]})`;
-      option.dataset.maplink = cust["Map Link / Coordinates"];
-      option.dataset.address = cust["Location Address"];
-      option.dataset.service = cust["Service Type"] || "";
-      option.dataset.name = cust["Name"];
-      option.dataset.phone = cust["Phone"];
-      option.dataset.package = cust["Service Package"] || "";
-      option.dataset.plan = cust["Plan Details"] || "";
-      option.dataset.quantity = cust["Quantity"] || "";
-      customerRefSelect.appendChild(option);
+// NEW: Custom dropdown functionality
+function setupCustomDropdown() {
+  // Toggle dropdown visibility
+  customerRefSelect.addEventListener('click', function(e) {
+    e.stopPropagation();
+    customerRefDropdown.classList.toggle('open');
+    customerRefSearch.style.display = customerRefDropdown.classList.contains('open') ? 'block' : 'none';
+    customerRefOptions.classList.toggle('open');
+    
+    if (customerRefDropdown.classList.contains('open')) {
+      customerRefSearch.focus();
+    }
+  });
+  
+  // Filter options when typing in search
+  customerRefSearch.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const options = customerRefOptions.querySelectorAll('.dropdown-option');
+    
+    options.forEach(option => {
+      const text = option.textContent.toLowerCase();
+      option.style.display = text.includes(searchTerm) ? 'block' : 'none';
     });
+  });
+  
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!customerRefDropdown.contains(e.target)) {
+      customerRefDropdown.classList.remove('open');
+      customerRefSearch.style.display = 'none';
+      customerRefOptions.classList.remove('open');
+    }
+  });
+  
+  // Prevent closing when clicking inside dropdown
+  customerRefDropdown.addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
+}
 
-    customerRefSelect.addEventListener("change", function() {
-      const selectedOption = this.options[this.selectedIndex];
-      document.getElementById("mapLinkWorker").value = selectedOption.dataset.maplink || "";
-      document.getElementById("serviceWorker").value = selectedOption.dataset.service || "";
-      document.getElementById("customerNameWorker").value = selectedOption.dataset.name || "";
-      document.getElementById("customerPhoneWorker").value = selectedOption.dataset.phone || "";
+// NEW: Populate custom dropdown with customers
+function populateCustomDropdown(customers) {
+  customerRefOptions.innerHTML = '';
+  
+  customers.forEach(cust => {
+    const option = document.createElement('div');
+    option.className = 'dropdown-option';
+    option.textContent = `${cust["Name"]} (${cust["Customer ID"]})`;
+    option.dataset.value = cust["Customer ID"] || cust["Phone"];
+    option.dataset.maplink = cust["Map Link / Coordinates"];
+    option.dataset.address = cust["Location Address"];
+    option.dataset.service = cust["Service Type"] || "";
+    option.dataset.name = cust["Name"];
+    option.dataset.phone = cust["Phone"];
+    option.dataset.package = cust["Service Package"] || "";
+    option.dataset.plan = cust["Plan Details"] || "";
+    option.dataset.quantity = cust["Quantity"] || "";
+    
+    option.addEventListener('click', function() {
+      // Update selected value
+      customerRefHidden.value = this.dataset.value;
+      customerRefSelect.querySelector('span').textContent = this.textContent;
+      
+      // Close dropdown
+      customerRefDropdown.classList.remove('open');
+      customerRefSearch.style.display = 'none';
+      customerRefOptions.classList.remove('open');
+      
+      // Remove previous selections
+      customerRefOptions.querySelectorAll('.dropdown-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      
+      // Highlight selected option
+      this.classList.add('selected');
+      
+      // Auto-fill other fields
+      document.getElementById("mapLinkWorker").value = this.dataset.maplink || "";
+      document.getElementById("serviceWorker").value = this.dataset.service || "";
+      document.getElementById("customerNameWorker").value = this.dataset.name || "";
+      document.getElementById("customerPhoneWorker").value = this.dataset.phone || "";
       
       // Auto-fill service package and pricing details
-      if (selectedOption.dataset.package) {
-        const packageValue = selectedOption.dataset.package;
+      if (this.dataset.package) {
+        const packageValue = this.dataset.package;
         const packageDisplay = getPackageDisplayName(packageValue);
         
         document.getElementById("pricingServiceUpdateDisplay").value = packageDisplay;
@@ -539,7 +699,7 @@ async function loadCustomers() {
           document.getElementById("pricingDetailsUpdate").style.display = "none"; // Hide pricing for membership
           
           // Load membership balance
-          loadMembershipBalance(selectedOption.dataset.phone);
+          loadMembershipBalance(this.dataset.phone);
         } else {
           document.getElementById("membershipUsageSection").style.display = "none";
           document.getElementById("pricingDetailsUpdate").style.display = "block"; // Show pricing for non-membership
@@ -550,16 +710,16 @@ async function loadCustomers() {
         }
         
         // Auto-fill plan details based on package type
-        if (packageValue === "membership" && selectedOption.dataset.plan) {
-          document.getElementById("membershipPlanUpdate").value = selectedOption.dataset.plan;
-        } else if (packageValue === "jimat" && selectedOption.dataset.plan) {
-          document.getElementById("jimatPlanUpdate").value = selectedOption.dataset.plan;
-        } else if (packageValue === "wash" && selectedOption.dataset.quantity) {
-          document.getElementById("washKgUpdate").value = selectedOption.dataset.quantity;
-        } else if (packageValue === "folding" && selectedOption.dataset.quantity) {
-          document.getElementById("foldKgUpdate").value = selectedOption.dataset.quantity;
-        } else if (packageValue === "ironing" && selectedOption.dataset.quantity) {
-          document.getElementById("ironPcsUpdate").value = selectedOption.dataset.quantity;
+        if (packageValue === "membership" && this.dataset.plan) {
+          document.getElementById("membershipPlanUpdate").value = this.dataset.plan;
+        } else if (packageValue === "jimat" && this.dataset.plan) {
+          document.getElementById("jimatPlanUpdate").value = this.dataset.plan;
+        } else if (packageValue === "wash" && this.dataset.quantity) {
+          document.getElementById("washKgUpdate").value = this.dataset.quantity;
+        } else if (packageValue === "folding" && this.dataset.quantity) {
+          document.getElementById("foldKgUpdate").value = this.dataset.quantity;
+        } else if (packageValue === "ironing" && this.dataset.quantity) {
+          document.getElementById("ironPcsUpdate").value = this.dataset.quantity;
         }
         
         // Calculate price after auto-filling (for non-membership packages)
@@ -575,6 +735,20 @@ async function loadCustomers() {
         hideAllPricingUpdate();
       }
     });
+    
+    customerRefOptions.appendChild(option);
+  });
+}
+
+// Load customer list from Google Apps Script
+async function loadCustomers() {
+  try {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbwRk-T3xGVFx0PzQSXqJ9piRLk8tXUWzcyDDHOfCxDuhLJ1V2PAPt87LETLZ1ZkbpnZmA/exec");
+    allCustomers = await response.json();
+    
+    // Set up custom dropdown
+    setupCustomDropdown();
+    populateCustomDropdown(allCustomers);
 
   } catch (err) {
     console.error("Error loading customers:", err);
