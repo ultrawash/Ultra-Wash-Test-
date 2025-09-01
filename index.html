@@ -898,19 +898,41 @@ function calcPriceUpdate() {
     if(plan==='16') { totalPrice = 16; breakdown = '$16 (1 box)'; }
     if(plan==='28') { totalPrice = 28; breakdown = '$28 (2 boxes)'; }
     if(plan==='40') { totalPrice = 40; breakdown = '$40 (4 boxes)'; }
-  } else if(packageValue==='wash') {
-    const kg = parseFloat(washKgUpdate.value) || 0;
-    totalPrice = kg * 2.5;
-    breakdown = `$${totalPrice} (${kg}kg × $2.5)`;
-  } else if(packageValue==='folding') {
-    const kg = parseFloat(foldKgUpdate.value) || 0;
-    totalPrice = kg * 1.5;
-    breakdown = `$${totalPrice} (${kg}kg × $1.5)`;
-  } else if(packageValue==='ironing') {
-    const pcs = parseFloat(ironPcsUpdate.value) || 0;
-    totalPrice = pcs * 1.5;
-    breakdown = `$${totalPrice} (${pcs}pcs × $1.5)`;
+  } else if (packageValue === 'wash') {
+  const kg = parseFloat(washKgUpdate.value) || 0;
+  if (kg <= 5) {
+    totalPrice = 10;
+    breakdown = `$10 (up to 5kg)`;
+  } else if (kg <= 8) {
+    totalPrice = 12;
+    breakdown = `$12 (up to 8kg)`;
+  } else if (kg <= 13) {
+    totalPrice = 16;
+    breakdown = `$16 (up to 13kg)`;
+  } else if (kg > 13) {
+    // Add on $1.20 for each extra kg above 13kg
+    totalPrice = 16 + (kg - 13) * 1.2;
+    breakdown = `$16 (13kg) + $${((kg - 13) * 1.2).toFixed(2)} add-on (${(kg - 13)}kg × $1.20)`;
   }
+} else if (packageValue === 'folding') {
+  const kg = parseFloat(foldKgUpdate.value) || 0;
+  if (kg <= 5) {
+    totalPrice = 2;
+    breakdown = `$2 (up to 5kg)`;
+  } else if (kg === 6 || kg === 7) {
+    totalPrice = 2;
+    breakdown = `$2 (6/7kg, still $2)`;
+  } else if (kg > 7) {
+    // Only charge add-on for every 2kg above 7kg (even number), $1 per 2kg
+    const addOn = Math.floor((kg - 7) / 2) * 1;
+    totalPrice = 2 + addOn;
+    breakdown = `$2 (7kg) + $${addOn} add-on (${Math.floor((kg - 7) / 2)} × $1/2kg)`;
+  }
+} else if (packageValue === 'ironing') {
+  const pcs = parseFloat(ironPcsUpdate.value) || 0;
+  totalPrice = pcs * 1;
+  breakdown = `$${totalPrice} (${pcs}pcs × $1)`;
+}
 
   totalPriceUpdateEl.textContent = `$${totalPrice}`;
   document.getElementById('priceBreakdownUpdate').textContent = breakdown;
@@ -986,3 +1008,4 @@ addBusinessHoursValidation();
 </script>
 </body>
 </html>
+
