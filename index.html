@@ -903,18 +903,33 @@ function calcPriceUpdate() {
   if (kg <= 5) {
     totalPrice = 10;
     breakdown = `$10 (up to 5kg)`;
-  } else if (kg <= 8) {
+  } else if (kg < 8) {
+    // 6 or 7kg
+    const addOnKg = kg - 5;
+    const addOn = addOnKg * 1.2;
+    totalPrice = 10 + addOn;
+    breakdown = `$10 (5kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
+  } else if (kg === 8) {
     totalPrice = 12;
-    breakdown = `$12 (up to 8kg)`;
-  } else if (kg <= 13) {
-    totalPrice = 16;
-    breakdown = `$16 (up to 13kg)`;
+    breakdown = `$12 (8kg)`;
+  } else if (kg > 8 && kg <= 13) {
+    // 9–13kg
+    const addOnKg = kg - 8;
+    const addOn = addOnKg * 1.2;
+    totalPrice = 12 + addOn;
+    breakdown = `$12 (8kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
   } else if (kg > 13) {
-    // Add on $1.20 for each extra kg above 13kg
-    totalPrice = 16 + (kg - 13) * 1.2;
-    breakdown = `$16 (13kg) + $${((kg - 13) * 1.2).toFixed(2)} add-on (${(kg - 13)}kg × $1.20)`;
+    // Above 13kg
+    const addOnKg = kg - 13;
+    const base = 12 + (5 * 1.2); // $12 + (5kg × $1.20) = $18.00 for 13kg
+    const addOn = addOnKg * 1.2;
+    totalPrice = base + addOn;
+    breakdown = `$18.00 (13kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
   }
-} else if (packageValue === 'folding') {
+}
+
+// FOLDING
+else if (packageValue === 'folding') {
   const kg = parseFloat(foldKgUpdate.value) || 0;
   if (kg <= 5) {
     totalPrice = 2;
@@ -923,12 +938,18 @@ function calcPriceUpdate() {
     totalPrice = 2;
     breakdown = `$2 (6/7kg, still $2)`;
   } else if (kg > 7) {
-    // Only charge add-on for every 2kg above 7kg (even number), $1 per 2kg
-    const addOn = Math.floor((kg - 7) / 2) * 1;
+    // Add-on: $1 per every even 2kg above 7kg
+    // Only even numbers count, odd kg does not add add-on
+    const addOnBlocks = Math.floor((kg - 7) / 2);
+    const addOn = addOnBlocks * 1;
     totalPrice = 2 + addOn;
-    breakdown = `$2 (7kg) + $${addOn} add-on (${Math.floor((kg - 7) / 2)} × $1/2kg)`;
+    breakdown = `$2 (7kg) + $${addOn} add-on (${addOnBlocks * 2}kg × $1/2kg)`;
+    // For odd kg (e.g. 9kg), the extra kg does not count for add-on
   }
-} else if (packageValue === 'ironing') {
+}
+
+// IRONING
+else if (packageValue === 'ironing') {
   const pcs = parseFloat(ironPcsUpdate.value) || 0;
   totalPrice = pcs * 1;
   breakdown = `$${totalPrice} (${pcs}pcs × $1)`;
@@ -1008,4 +1029,5 @@ addBusinessHoursValidation();
 </script>
 </body>
 </html>
+
 
