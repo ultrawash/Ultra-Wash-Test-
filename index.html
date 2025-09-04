@@ -23,6 +23,7 @@
   --color-btn-text: #fff;
   --radius: 6px;
   --container-width: 440px;
+  --color-valid: #4caf50;
 }
 body {
   font-family: var(--font-family);
@@ -64,6 +65,7 @@ select {
   border-radius: var(--radius);
   margin-bottom: 16px;
   box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 input:focus,
 textarea:focus,
@@ -71,6 +73,12 @@ select:focus {
   outline: none;
   border-color: var(--color-focus-border);
   box-shadow: 0 0 4px var(--color-focus-border);
+}
+/* Green border for filled fields */
+input:not(:placeholder-shown):valid,
+textarea:not(:placeholder-shown):valid,
+select:valid {
+  border-color: var(--color-valid);
 }
 textarea { resize: vertical; }
 button[type="submit"] {
@@ -160,6 +168,7 @@ button[type="submit"]:hover { background-color: #e05343; }
   border-radius: var(--radius);
   cursor: pointer;
   background-color: white;
+  font-size: var(--font-size-input); /* Ensure same font size */
 }
 
 .dropdown-select:after {
@@ -180,6 +189,7 @@ button[type="submit"]:hover { background-color: #e05343; }
   margin-bottom: 8px;
   box-sizing: border-box;
   display: none;
+  font-size: var(--font-size-input); /* Ensure same font size */
 }
 
 .dropdown-options {
@@ -205,6 +215,7 @@ button[type="submit"]:hover { background-color: #e05343; }
   padding: 10px;
   cursor: pointer;
   border-bottom: 1px solid #f0f0f0;
+  font-size: var(--font-size-input); /* Ensure same font size */
 }
 
 .dropdown-option:last-child {
@@ -236,6 +247,11 @@ button[type="submit"]:hover { background-color: #e05343; }
   outline: none;
   box-shadow: none;
 }
+
+/* Hidden backend address styling */
+.backend-address {
+  display: none !important;
+}
 </style>
 </head>
 <body>
@@ -255,15 +271,15 @@ button[type="submit"]:hover { background-color: #e05343; }
   <!-- Customer Form -->
   <div id="customerForm" style="display:none;">
     <label for="name">Full Name</label>
-    <input id="name" name="name" type="text" placeholder="First Name, Last Name" />
+    <input id="name" name="name" type="text" placeholder="First Name, Last Name" required />
 
     <label for="phone">Phone Number</label>
-    <input id="phone" name="phone" type="tel" placeholder="+673 8221133 / 8221133" />
+    <input id="phone" name="phone" type="tel" placeholder="+673 8221133 / 8221133" required />
 
     <!-- Service Package Field -->
     <label for="pricingService">Service Package</label>
-    <select id="pricingService" name="pricingService">
-      <option value="">-- Select Package --</option>
+    <select id="pricingService" name="pricingService" required>
+      <option value="" disabled selected>-- Select Package --</option>
       <option value="membership">Membership</option>
       <option value="jimat">Jimat Cuci Bersama</option>
       <option value="wash">Wash, Dry & Fold</option>
@@ -274,8 +290,8 @@ button[type="submit"]:hover { background-color: #e05343; }
     <!-- Membership options -->
     <div id="membershipFields" style="display:none;">
       <label for="membershipPlan">Membership Plan</label>
-      <select id="membershipPlan" name="membershipPlan">
-        <option value="">-- Select Plan --</option>
+      <select id="membershipPlan" name="membershipPlan" required>
+        <option value="" disabled selected>-- Select Plan --</option>
         <option value="120-12-60">$120 – 12 trips (60kg)</option>
         <option value="100-2-50">$100 – 2x/week (max 50kg, 1 address)</option>
       </select>
@@ -284,8 +300,8 @@ button[type="submit"]:hover { background-color: #e05343; }
     <!-- Jimat options -->
     <div id="jimatFields" style="display:none;">
       <label for="jimatPlan">Jimat Cuci Bersama</label>
-      <select id="jimatPlan" name="jimatPlan">
-        <option value="">-- Select Box --</option>
+      <select id="jimatPlan" name="jimatPlan" required>
+        <option value="" disabled selected>-- Select Box --</option>
         <option value="16">$16 / 1 box</option>
         <option value="28">$28 / 2 boxes</option>
         <option value="40">$40 / 4 boxes</option>
@@ -296,7 +312,7 @@ button[type="submit"]:hover { background-color: #e05343; }
     <div class="note"><strong>Price will be calculated after selection</strong></div>
 
     <label for="service">Service</label>
-    <select id="service" name="service">
+    <select id="service" name="service" required>
       <option value="" disabled selected>Select service</option>
       <option value="Self Drop-off & Pick Up">Self Drop-off & Pick Up</option>
       <option value="Pick Up Only">Pick Up Only</option>
@@ -307,23 +323,23 @@ button[type="submit"]:hover { background-color: #e05343; }
     <div id="serviceFields" style="display:none;">
       <div id="singleAddressSection" style="display:none;">
         <label id="singleAddressLabel">Address</label>
-        <textarea id="singleAddress" name="singleAddress" placeholder="Enter your Address" rows="3"></textarea>
+        <textarea id="singleAddress" name="singleAddress" placeholder="Enter your Address" rows="3" required></textarea>
         <label for="singleMapLink">Map Link</label>
-        <input id="singleMapLink" name="singleMapLink" type="text" placeholder="Paste Google Maps link or Coordinates" />
+        <input id="singleMapLink" name="singleMapLink" type="text" placeholder="Paste Google Maps link or Coordinates" required />
         <label id="singleDateLabel">Date & Time</label>
         <div class="note" id="singleDateNote"></div>
-        <input type="datetime-local" id="singleDateTime" name="singleDateTime" />
+        <input type="datetime-local" id="singleDateTime" name="singleDateTime" required />
         <input type="hidden" id="singleDateFormatted" name="singleDateFormatted">
       </div>
 
       <div id="pickUpDeliverySection" style="display:none;">
         <label>Pick Up Location</label>
-        <textarea id="pickupAddress" name="pickupAddress" placeholder="Enter your Address" rows="3"></textarea>
+        <textarea id="pickupAddress" name="pickupAddress" placeholder="Enter your Address" rows="3" required></textarea>
         <label for="pickupMapLink">Map Link</label>
-        <input id="pickupMapLink" name="pickupMapLink" type="text" placeholder="Paste Google Maps link" />
+        <input id="pickupMapLink" name="pickupMapLink" type="text" placeholder="Paste Google Maps link" required />
         <label>Pick Up Date & Time</label>
         <div class="note">⏰ Pick Up hours:<br>• Monday–Friday: 08:30 AM – 04:30 PM<br>• Saturday: 08:30 AM – 11:30 AM<br>• Sunday: Closed</div>
-        <input type="datetime-local" id="pickupDate" name="pickupDate" />
+        <input type="datetime-local" id="pickupDate" name="pickupDate" required />
         <input type="hidden" id="pickupDateFormatted" name="pickupDateFormatted">
 
         <label>Delivery Location</label>
@@ -331,13 +347,13 @@ button[type="submit"]:hover { background-color: #e05343; }
           <input type="checkbox" id="sameAsPickup"> 
           <span class="small-checkbox-label">Delivery address same as Pickup</span>
         </div>
-        <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Enter your Address" rows="3"></textarea>
+        <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Enter your Address" rows="3" required></textarea>
         <label for="deliveryMapLink" id="deliveryMapLabel">Map Link</label>
-        <input id="deliveryMapLink" name="deliveryMapLink" type="text" placeholder="Paste Google Maps link" />
+        <input id="deliveryMapLink" name="deliveryMapLink" type="text" placeholder="Paste Google Maps link" required />
         <div id="deliveryDateSection" style="display:none;">
           <label>Delivery Date & Time</label>
           <div class="note">⏰ Delivery hours:<br>• Monday–Friday: 08:30 AM – 04:30 PM<br>• Saturday: 08:30 AM – 11:30 AM<br>• Sunday: Closed</div>
-          <input type="datetime-local" id="deliveryDate" name="deliveryDate" />
+          <input type="datetime-local" id="deliveryDate" name="deliveryDate" required />
           <input type="hidden" id="deliveryDateFormatted" name="deliveryDateFormatted">
         </div>
       </div>
@@ -361,6 +377,9 @@ button[type="submit"]:hover { background-color: #e05343; }
     <!-- Hidden Phone Number (for backend only) -->
     <input id="customerPhoneWorker" name="customerPhoneWorker" type="hidden" />
 
+    <!-- Hidden Backend Address (for backend only) -->
+    <input id="backendAddress" name="backendAddress" type="hidden" class="backend-address" />
+
     <label for="mapLinkWorker">Map Link</label>
     <input id="mapLinkWorker" name="mapLinkWorker" type="text" readonly placeholder="Auto-filled from Customer Data" class="auto-filled" />
 
@@ -379,7 +398,7 @@ button[type="submit"]:hover { background-color: #e05343; }
     <div id="membershipFieldsUpdate" style="display:none;">
       <label for="membershipPlanUpdate">Membership Plan</label>
       <select id="membershipPlanUpdate" name="membershipPlanUpdate" disabled>
-        <option value="">-- Select Plan --</option>
+        <option value="" disabled selected>-- Select Plan --</option>
         <option value="120-12-60">$120 – 12 trips (60kg)</option>
         <option value="100-2-50">$100 – 2x/week (max 50kg, 1 address)</option>
       </select>
@@ -388,7 +407,7 @@ button[type="submit"]:hover { background-color: #e05343; }
     <div id="jimatFieldsUpdate" style="display:none;">
       <label for="jimatPlanUpdate">Jimat Cuci Bersama</label>
       <select id="jimatPlanUpdate" name="jimatPlanUpdate" disabled>
-        <option value="">-- Select Box --</option>
+        <option value="" disabled selected>-- Select Box --</option>
         <option value="16">$16 / 1 box</option>
         <option value="28">$28 / 2 boxes</option>
         <option value="40">$40 / 4 boxes</option>
@@ -397,27 +416,27 @@ button[type="submit"]:hover { background-color: #e05343; }
 
     <div id="washFieldsUpdate" style="display:none;">
       <label for="washKgUpdate">Weight (kg)</label>
-      <input type="number" id="washKgUpdate" name="washKgUpdate" min="1" step="1" />
+      <input type="number" id="washKgUpdate" name="washKgUpdate" min="1" step="1" required />
     </div>
 
     <div id="foldingFieldsUpdate" style="display:none;">
       <label for="foldKgUpdate">Weight (kg)</label>
-      <input type="number" id="foldKgUpdate" name="foldKgUpdate" min="1" step="1" />
+      <input type="number" id="foldKgUpdate" name="foldKgUpdate" min="1" step="1" required />
     </div>
 
     <div id="ironingFieldsUpdate" style="display:none;">
       <label for="ironPcsUpdate">Number of Pieces</label>
-      <input type="number" id="ironPcsUpdate" name="ironPcsUpdate" min="1" step="1" />
+      <input type="number" id="ironPcsUpdate" name="ironPcsUpdate" min="1" step="1" required />
     </div>
 
     <!-- Membership Usage Tracking (Only shown for membership customers) -->
     <div id="membershipUsageSection" class="membership-usage" style="display:none;">
       <h3>Membership Usage</h3>
       <label for="tripsUsed">Trips Used</label>
-      <input type="number" id="tripsUsed" name="tripsUsed" min="0" step="1" value="1" />
+      <input type="number" id="tripsUsed" name="tripsUsed" min="0" step="1" value="1" required />
       
       <label for="weightUsed">Weight Used (Kg)</label>
-      <input type="number" id="weightUsed" name="weightUsed" min="0" step="0.1" />
+      <input type="number" id="weightUsed" name="weightUsed" min="0" step="0.1" required />
       
       <!-- Membership Balance Display -->
       <div id="membershipBalance" style="margin-top: 10px; padding: 10px; background-color: #e8f4fc; border-radius: 4px;">
@@ -434,7 +453,7 @@ button[type="submit"]:hover { background-color: #e05343; }
     </div>
 
     <label for="totalItems">Total Items</label>
-    <input id="totalItems" name="totalItems" type="number" min="1" placeholder="Enter total items" />
+    <input id="totalItems" name="totalItems" type="number" min="1" placeholder="Enter total items" required />
   </div>
 
   <button type="submit">Submit</button>
@@ -682,6 +701,7 @@ function populateCustomDropdown(customers) {
       document.getElementById("serviceWorker").value = this.dataset.service || "";
       document.getElementById("customerNameWorker").value = this.dataset.name || "";
       document.getElementById("customerPhoneWorker").value = this.dataset.phone || "";
+      document.getElementById("backendAddress").value = this.dataset.address || ""; // Set hidden backend address
       
       // Auto-fill service package and pricing details
       if (this.dataset.package) {
@@ -815,6 +835,48 @@ function isWithinBusinessHours(dateTime, isPickup = true) {
   return false;
 }
 
+// Function to validate datetime inputs
+function validateDateTimeInputs() {
+  let isValid = true;
+  
+  // Check if we're in customer form
+  if (formMode.value === 'customer') {
+    const serviceType = serviceSelect.value;
+    
+    if (serviceType === 'Pick Up Only') {
+      const pickupDateTime = document.getElementById('singleDateTime');
+      if (pickupDateTime.value && !isWithinBusinessHours(pickupDateTime.value, true)) {
+        alert('Selected pick-up time is outside business hours. Please select a time between Monday-Friday 8:30 AM - 4:30 PM or Saturday 8:30 AM - 11:30 AM.');
+        pickupDateTime.focus();
+        isValid = false;
+      }
+    } else if (serviceType === 'Delivery Only') {
+      const deliveryDateTime = document.getElementById('singleDateTime');
+      if (deliveryDateTime.value && !isWithinBusinessHours(deliveryDateTime.value, false)) {
+        alert('Selected delivery time is outside business hours. Please select a time between Monday-Friday 8:30 AM - 4:30 PM or Saturday 8:30 AM - 11:30 AM.');
+        deliveryDateTime.focus();
+        isValid = false;
+      }
+    } else if (serviceType === 'Pick Up & Delivery') {
+      const pickupDate = document.getElementById('pickupDate');
+      if (pickupDate.value && !isWithinBusinessHours(pickupDate.value, true)) {
+        alert('Selected pick-up time is outside business hours. Please select a time between Monday-Friday 8:30 AM - 4:30 PM or Saturday 8:30 AM - 11:30 AM.');
+        pickupDate.focus();
+        isValid = false;
+      }
+      
+      const deliveryDate = document.getElementById('deliveryDate');
+      if (deliveryDate.value && !isWithinBusinessHours(deliveryDate.value, false)) {
+        alert('Selected delivery time is outside business hours. Please select a time between Monday-Friday 8:30 AM - 4:30 PM or Saturday 8:30 AM - 11:30 AM.');
+        deliveryDate.focus();
+        isValid = false;
+      }
+    }
+  }
+  
+  return isValid;
+}
+
 // Add event listeners to datetime inputs to check business hours
 function addBusinessHoursValidation() {
   const datetimeInputs = [
@@ -899,61 +961,55 @@ function calcPriceUpdate() {
     if(plan==='28') { totalPrice = 28; breakdown = '$28 (2 boxes)'; }
     if(plan==='40') { totalPrice = 40; breakdown = '$40 (4 boxes)'; }
   } else if (packageValue === 'wash') {
-  const kg = parseFloat(washKgUpdate.value) || 0;
-  if (kg <= 5) {
-    totalPrice = 10;
-    breakdown = `$10 (up to 5kg)`;
-  } else if (kg < 8) {
-    // 6 or 7kg
-    const addOnKg = kg - 5;
-    const addOn = addOnKg * 1.2;
-    totalPrice = 10 + addOn;
-    breakdown = `$10 (5kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
-  } else if (kg === 8) {
-    totalPrice = 12;
-    breakdown = `$12 (8kg)`;
-  } else if (kg > 8 && kg <= 13) {
-    // 9–13kg
-    const addOnKg = kg - 8;
-    const addOn = addOnKg * 1.2;
-    totalPrice = 12 + addOn;
-    breakdown = `$12 (8kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
-  } else if (kg > 13) {
-    // Above 13kg
-    const addOnKg = kg - 13;
-    const base = 12 + (5 * 1.2); // $12 + (5kg × $1.20) = $18.00 for 13kg
-    const addOn = addOnKg * 1.2;
-    totalPrice = base + addOn;
-    breakdown = `$18.00 (13kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
+    const kg = parseFloat(washKgUpdate.value) || 0;
+    if (kg <= 5) {
+      totalPrice = 10;
+      breakdown = `$10 (up to 5kg)`;
+    } else if (kg < 8) {
+      // 6 or 7kg
+      const addOnKg = kg - 5;
+      const addOn = addOnKg * 1.2;
+      totalPrice = 10 + addOn;
+      breakdown = `$10 (5kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
+    } else if (kg === 8) {
+      totalPrice = 12;
+      breakdown = `$12 (8kg)`;
+    } else if (kg > 8 && kg <= 13) {
+      // 9–13kg
+      const addOnKg = kg - 8;
+      const addOn = addOnKg * 1.2;
+      totalPrice = 12 + addOn;
+      breakdown = `$12 (8kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
+    } else if (kg > 13) {
+      // Above 13kg
+      const addOnKg = kg - 13;
+      const base = 12 + (5 * 1.2); // $12 + (5kg × $1.20) = $18.00 for 13kg
+      const addOn = addOnKg * 1.2;
+      totalPrice = base + addOn;
+      breakdown = `$18.00 (13kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
+    }
+  } else if (packageValue === 'folding') {
+    const kg = parseFloat(foldKgUpdate.value) || 0;
+    if (kg <= 5) {
+      totalPrice = 2;
+      breakdown = `$2 (up to 5kg)`;
+    } else if (kg === 6 || kg === 7) {
+      totalPrice = 2;
+      breakdown = `$2 (6/7kg, still $2)`;
+    } else if (kg > 7) {
+      // Add-on: $1 per every even 2kg above 7kg
+      // Only even numbers count, odd kg does not add add-on
+      const addOnBlocks = Math.floor((kg - 7) / 2);
+      const addOn = addOnBlocks * 1;
+      totalPrice = 2 + addOn;
+      breakdown = `$2 (7kg) + $${addOn} add-on (${addOnBlocks * 2}kg × $1/2kg)`;
+      // For odd kg (e.g. 9kg), the extra kg does not count for add-on
+    }
+  } else if (packageValue === 'ironing') {
+    const pcs = parseFloat(ironPcsUpdate.value) || 0;
+    totalPrice = pcs * 1;
+    breakdown = `$${totalPrice} (${pcs}pcs × $1)`;
   }
-}
-
-// FOLDING
-else if (packageValue === 'folding') {
-  const kg = parseFloat(foldKgUpdate.value) || 0;
-  if (kg <= 5) {
-    totalPrice = 2;
-    breakdown = `$2 (up to 5kg)`;
-  } else if (kg === 6 || kg === 7) {
-    totalPrice = 2;
-    breakdown = `$2 (6/7kg, still $2)`;
-  } else if (kg > 7) {
-    // Add-on: $1 per every even 2kg above 7kg
-    // Only even numbers count, odd kg does not add add-on
-    const addOnBlocks = Math.floor((kg - 7) / 2);
-    const addOn = addOnBlocks * 1;
-    totalPrice = 2 + addOn;
-    breakdown = `$2 (7kg) + $${addOn} add-on (${addOnBlocks * 2}kg × $1/2kg)`;
-    // For odd kg (e.g. 9kg), the extra kg does not count for add-on
-  }
-}
-
-// IRONING
-else if (packageValue === 'ironing') {
-  const pcs = parseFloat(ironPcsUpdate.value) || 0;
-  totalPrice = pcs * 1;
-  breakdown = `$${totalPrice} (${pcs}pcs × $1)`;
-}
 
   totalPriceUpdateEl.textContent = `$${totalPrice}`;
   document.getElementById('priceBreakdownUpdate').textContent = breakdown;
@@ -983,6 +1039,11 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
   }
   if (document.getElementById('deliveryDate') && document.getElementById('deliveryDate').value) {
     document.getElementById('deliveryDateFormatted').value = getBruneiFormattedDateTime('deliveryDate');
+  }
+  
+  // Validate datetime inputs
+  if (!validateDateTimeInputs()) {
+    return;
   }
   
   // Create form data object
@@ -1029,5 +1090,3 @@ addBusinessHoursValidation();
 </script>
 </body>
 </html>
-
-
