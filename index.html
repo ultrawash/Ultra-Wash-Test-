@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ultra Wash Appointment Form</title>
+<title>Ultra Wash Customer Form</title>
 <style>
 :root {
   --font-family: 'Open Sans', sans-serif;
@@ -66,6 +66,7 @@ select {
   margin-bottom: 16px;
   box-sizing: border-box;
   transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: var(--font-family); /* Ensure consistent font */
 }
 input:focus,
 textarea:focus,
@@ -80,7 +81,16 @@ textarea:not(:placeholder-shown):valid,
 select:valid {
   border-color: var(--color-valid);
 }
-textarea { resize: vertical; }
+/* NEW: Consistent placeholder styling */
+::placeholder {
+  color: #999;
+  font-family: var(--font-family);
+  font-size: var(--font-size-input);
+}
+textarea { 
+  resize: vertical; 
+  font-family: var(--font-family); /* Ensure consistent font */
+}
 button[type="submit"] {
   background-color: var(--color-btn-bg);
   color: var(--color-btn-text);
@@ -252,6 +262,11 @@ button[type="submit"]:hover { background-color: #e05343; }
 .backend-address {
   display: none !important;
 }
+
+/* NEW: Hidden address field for update form */
+.hidden-address-field {
+  display: none !important;
+}
 </style>
 </head>
 <body>
@@ -323,7 +338,7 @@ button[type="submit"]:hover { background-color: #e05343; }
     <div id="serviceFields" style="display:none;">
       <div id="singleAddressSection" style="display:none;">
         <label id="singleAddressLabel">Address</label>
-        <textarea id="singleAddress" name="singleAddress" placeholder="Enter your Address" rows="3" required></textarea>
+        <textarea id="singleAddress" name="singleAddress" placeholder="Enter your address" rows="3" required></textarea>
         <label for="singleMapLink">Map Link</label>
         <input id="singleMapLink" name="singleMapLink" type="text" placeholder="Paste Google Maps link or Coordinates" required />
         <label id="singleDateLabel">Date & Time</label>
@@ -334,7 +349,7 @@ button[type="submit"]:hover { background-color: #e05343; }
 
       <div id="pickUpDeliverySection" style="display:none;">
         <label>Pick Up Location</label>
-        <textarea id="pickupAddress" name="pickupAddress" placeholder="Enter your Address" rows="3" required></textarea>
+        <textarea id="pickupAddress" name="pickupAddress" placeholder="Enter your address" rows="3" required></textarea>
         <label for="pickupMapLink">Map Link</label>
         <input id="pickupMapLink" name="pickupMapLink" type="text" placeholder="Paste Google Maps link" required />
         <label>Pick Up Date & Time</label>
@@ -347,7 +362,7 @@ button[type="submit"]:hover { background-color: #e05343; }
           <input type="checkbox" id="sameAsPickup"> 
           <span class="small-checkbox-label">Delivery address same as Pickup</span>
         </div>
-        <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Enter your Address" rows="3" required></textarea>
+        <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Enter your address" rows="3" required></textarea>
         <label for="deliveryMapLink" id="deliveryMapLabel">Map Link</label>
         <input id="deliveryMapLink" name="deliveryMapLink" type="text" placeholder="Paste Google Maps link" required />
         <div id="deliveryDateSection" style="display:none;">
@@ -379,6 +394,9 @@ button[type="submit"]:hover { background-color: #e05343; }
 
     <!-- Hidden Backend Address (for backend only) -->
     <input id="backendAddress" name="backendAddress" type="hidden" class="backend-address" />
+    
+    <!-- NEW: Hidden Address Field for Update Form -->
+    <input id="addressWorker" name="addressWorker" type="hidden" class="hidden-address-field" />
 
     <label for="mapLinkWorker">Map Link</label>
     <input id="mapLinkWorker" name="mapLinkWorker" type="text" readonly placeholder="Auto-filled from Customer Data" class="auto-filled" />
@@ -493,6 +511,9 @@ const customerRefSelect = document.getElementById('customerRefSelect');
 const customerRefSearch = document.getElementById('customerRefSearch');
 const customerRefOptions = document.getElementById('customerRefOptions');
 const customerRefHidden = document.getElementById('customerRef');
+
+// NEW: Hidden address field for update form
+const addressWorker = document.getElementById('addressWorker');
 
 // Switch form modes
 formMode.addEventListener('change', () => {
@@ -702,6 +723,7 @@ function populateCustomDropdown(customers) {
       document.getElementById("customerNameWorker").value = this.dataset.name || "";
       document.getElementById("customerPhoneWorker").value = this.dataset.phone || "";
       document.getElementById("backendAddress").value = this.dataset.address || ""; // Set hidden backend address
+      addressWorker.value = this.dataset.address || ""; // Set hidden address field
       
       // Auto-fill service package and pricing details
       if (this.dataset.package) {
@@ -805,288 +827,177 @@ function getBruneiFormattedDateTime(inputId) {
 }
 
 // Function to check if selected time is within business hours
-function isWithinBusinessHours(dateTime, isPickup = true) {
-  const date = new Date(dateTime);
-  const day = date.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
+function isWithinBusinessHours(dateTimeInputId, serviceType) {
+  const dateTime = document.getElementById(dateTimeInputId).valueAsDate;
+  if (!dateTime) return true; // Skip validation if no date selected
   
-  // Sunday is closed
-  if (day === 0) return false;
+  const day = dateTime.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const hours = dateTime.getHours();
+  const minutes = dateTime.getMinutes();
   
-  // Monday to Friday
-  if (day >= 1 && day <= 5) {
-    const timeInMinutes = hours * 60 + minutes;
-    const startTime = 8 * 60 + 30; // 8:30 AM
-    const endTime = 16 * 60 + 30;  // 4:30 PM
-    
-    return timeInMinutes >= startTime && timeInMinutes <= endTime;
+  // Business hours
+  const weekdaysOpen = 8.5; // 8:30 AM
+  const weekdaysClose = 16.5; // 4:30 PM
+  const saturdayOpen = 8.5; // 8:30 AM
+  const saturdayClose = 11.5; // 11:30 AM
+  
+  // Check if it's a valid business day/time
+  if (day === 0) { // Sunday
+    return false;
+  } else if (day === 6) { // Saturday
+    return hours >= saturdayOpen && (hours < saturdayClose || (hours === saturdayClose && minutes === 0));
+  } else { // Weekdays
+    return hours >= weekdaysOpen && (hours < weekdaysClose || (hours === weekdaysClose && minutes === 0));
   }
-  
-  // Saturday
-  if (day === 6) {
-    const timeInMinutes = hours * 60 + minutes;
-    const startTime = 8 * 60 + 30; // 8:30 AM
-    const endTime = 11 * 60 + 30;  // 11:30 AM
-    
-    return timeInMinutes >= startTime && timeInMinutes <= endTime;
-  }
-  
-  return false;
 }
 
-// Function to validate datetime inputs
-function validateDateTimeInputs() {
-  let isValid = true;
-  
-  // Check if we're in customer form
-  if (formMode.value === 'customer') {
-    const serviceType = serviceSelect.value;
-    
-    if (serviceType === 'Pick Up Only') {
-      const pickupDateTime = document.getElementById('singleDateTime');
-      if (pickupDateTime.value && !isWithinBusinessHours(pickupDateTime.value, true)) {
-        alert('Selected pick-up time is outside business hours. Please select a time between Monday-Friday 8:30 AM - 4:30 PM or Saturday 8:30 AM - 11:30 AM.');
-        pickupDateTime.focus();
-        isValid = false;
-      }
-    } else if (serviceType === 'Delivery Only') {
-      const deliveryDateTime = document.getElementById('singleDateTime');
-      if (deliveryDateTime.value && !isWithinBusinessHours(deliveryDateTime.value, false)) {
-        alert('Selected delivery time is outside business hours. Please select a time between Monday-Friday 8:30 AM - 4:30 PM or Saturday 8:30 AM - 11:30 AM.');
-        deliveryDateTime.focus();
-        isValid = false;
-      }
-    } else if (serviceType === 'Pick Up & Delivery') {
-      const pickupDate = document.getElementById('pickupDate');
-      if (pickupDate.value && !isWithinBusinessHours(pickupDate.value, true)) {
-        alert('Selected pick-up time is outside business hours. Please select a time between Monday-Friday 8:30 AM - 4:30 PM or Saturday 8:30 AM - 11:30 AM.');
-        pickupDate.focus();
-        isValid = false;
-      }
-      
-      const deliveryDate = document.getElementById('deliveryDate');
-      if (deliveryDate.value && !isWithinBusinessHours(deliveryDate.value, false)) {
-        alert('Selected delivery time is outside business hours. Please select a time between Monday-Friday 8:30 AM - 4:30 PM or Saturday 8:30 AM - 11:30 AM.');
-        deliveryDate.focus();
-        isValid = false;
-      }
-    }
-  }
-  
-  return isValid;
-}
-
-// Add event listeners to datetime inputs to check business hours
-function addBusinessHoursValidation() {
-  const datetimeInputs = [
-    document.getElementById('singleDateTime'),
-    document.getElementById('pickupDate'),
-    document.getElementById('deliveryDate')
-  ];
-  
-  datetimeInputs.forEach(input => {
-    if (input) {
-      input.addEventListener('change', function() {
-        if (this.value) {
-          const isPickup = this.id !== 'deliveryDate';
-          if (!isWithinBusinessHours(this.value, isPickup)) {
-            alert('Warning: The selected time is outside of business hours. Please select a time during our operating hours.');
-          }
-        }
-      });
-    }
-  });
-}
-
-// === Pricing logic for Customer Form ===
-const pricingService = document.getElementById('pricingService');
-const membershipFields = document.getElementById('membershipFields');
-const jimatFields = document.getElementById('jimatFields');
-
-// Hide all pricing fields initially
-function hideAllPricingCustomer() {
-  [membershipFields, jimatFields].forEach(div => div.style.display = 'none');
-}
-
-// Show only membership and jimat fields for customer form
-pricingService.addEventListener('change', () => {
-  hideAllPricingCustomer();
-  if(pricingService.value==='membership') membershipFields.style.display='block';
-  if(pricingService.value==='jimat') jimatFields.style.display='block';
-});
-
-// === Pricing logic for Update Form ===
-const totalPriceUpdateEl = document.getElementById('totalPriceUpdate');
-const membershipFieldsUpdate = document.getElementById('membershipFieldsUpdate');
-const jimatFieldsUpdate = document.getElementById('jimatFieldsUpdate');
-const washFieldsUpdate = document.getElementById('washFieldsUpdate');
-const foldingFieldsUpdate = document.getElementById('foldingFieldsUpdate');
-const ironingFieldsUpdate = document.getElementById('ironingFieldsUpdate');
-const membershipPlanUpdate = document.getElementById('membershipPlanUpdate');
-const jimatPlanUpdate = document.getElementById('jimatPlanUpdate');
-const washKgUpdate = document.getElementById('washKgUpdate');
-const foldKgUpdate = document.getElementById('foldKgUpdate');
-const ironPcsUpdate = document.getElementById('ironPcsUpdate');
-
-// Hide all pricing fields for update form
-function hideAllPricingUpdate() {
-  [membershipFieldsUpdate, jimatFieldsUpdate, washFieldsUpdate, foldingFieldsUpdate, ironingFieldsUpdate].forEach(div => div.style.display = 'none');
-}
-
-// Show pricing fields based on selected package for update form
+// Function to show appropriate pricing fields in update form
 function showPricingFieldsUpdate() {
+  const packageType = document.getElementById("pricingServiceUpdate").value;
+  
+  // Hide all fields first
   hideAllPricingUpdate();
-  const packageValue = document.getElementById('pricingServiceUpdate').value;
-  if(packageValue==='membership') membershipFieldsUpdate.style.display='block';
-  if(packageValue==='jimat') jimatFieldsUpdate.style.display='block';
-  if(packageValue==='wash') washFieldsUpdate.style.display='block';
-  if(packageValue==='folding') foldingFieldsUpdate.style.display='block';
-  if(packageValue==='ironing') ironingFieldsUpdate.style.display='block';
+  
+  // Show relevant fields based on package type
+  if (packageType === "membership") {
+    document.getElementById("membershipFieldsUpdate").style.display = "block";
+  } else if (packageType === "jimat") {
+    document.getElementById("jimatFieldsUpdate").style.display = "block";
+  } else if (packageType === "wash") {
+    document.getElementById("washFieldsUpdate").style.display = "block";
+  } else if (packageType === "folding") {
+    document.getElementById("foldingFieldsUpdate").style.display = "block";
+  } else if (packageType === "ironing") {
+    document.getElementById("ironingFieldsUpdate").style.display = "block";
+  }
 }
 
-// Calculate price for update form
+// Function to hide all pricing fields in update form
+function hideAllPricingUpdate() {
+  document.getElementById("membershipFieldsUpdate").style.display = "none";
+  document.getElementById("jimatFieldsUpdate").style.display = "none";
+  document.getElementById("washFieldsUpdate").style.display = "none";
+  document.getElementById("foldingFieldsUpdate").style.display = "none";
+  document.getElementById("ironingFieldsUpdate").style.display = "none";
+}
+
+// Function to calculate price for update form
 function calcPriceUpdate() {
-  const packageValue = document.getElementById('pricingServiceUpdate').value;
-  let totalPrice = 0;
-  let breakdown = '';
-
-  if(packageValue==='membership') {
-    const plan = membershipPlanUpdate.value;
-    if(plan==='120-12-60') { totalPrice = 120; breakdown = '$120 (12 trips, 60kg)'; }
-    if(plan==='100-2-50') { totalPrice = 100; breakdown = '$100 (2x/week, max 50kg)'; }
-  } else if(packageValue==='jimat') {
-    const plan = jimatPlanUpdate.value;
-    if(plan==='16') { totalPrice = 16; breakdown = '$16 (1 box)'; }
-    if(plan==='28') { totalPrice = 28; breakdown = '$28 (2 boxes)'; }
-    if(plan==='40') { totalPrice = 40; breakdown = '$40 (4 boxes)'; }
-  } else if (packageValue === 'wash') {
-    const kg = parseFloat(washKgUpdate.value) || 0;
-    if (kg <= 5) {
-      totalPrice = 10;
-      breakdown = `$10 (up to 5kg)`;
-    } else if (kg < 8) {
-      // 6 or 7kg
-      const addOnKg = kg - 5;
-      const addOn = addOnKg * 1.2;
-      totalPrice = 10 + addOn;
-      breakdown = `$10 (5kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
-    } else if (kg === 8) {
-      totalPrice = 12;
-      breakdown = `$12 (8kg)`;
-    } else if (kg > 8 && kg <= 13) {
-      // 9–13kg
-      const addOnKg = kg - 8;
-      const addOn = addOnKg * 1.2;
-      totalPrice = 12 + addOn;
-      breakdown = `$12 (8kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
-    } else if (kg > 13) {
-      // Above 13kg
-      const addOnKg = kg - 13;
-      const base = 12 + (5 * 1.2); // $12 + (5kg × $1.20) = $18.00 for 13kg
-      const addOn = addOnKg * 1.2;
-      totalPrice = base + addOn;
-      breakdown = `$18.00 (13kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
-    }
-  } else if (packageValue === 'folding') {
-    const kg = parseFloat(foldKgUpdate.value) || 0;
-    if (kg <= 5) {
-      totalPrice = 2;
-      breakdown = `$2 (up to 5kg)`;
-    } else if (kg === 6 || kg === 7) {
-      totalPrice = 2;
-      breakdown = `$2 (6/7kg, still $2)`;
-    } else if (kg > 7) {
-      // Add-on: $1 per every even 2kg above 7kg
-      // Only even numbers count, odd kg does not add add-on
-      const addOnBlocks = Math.floor((kg - 7) / 2);
-      const addOn = addOnBlocks * 1;
-      totalPrice = 2 + addOn;
-      breakdown = `$2 (7kg) + $${addOn} add-on (${addOnBlocks * 2}kg × $1/2kg)`;
-      // For odd kg (e.g. 9kg), the extra kg does not count for add-on
-    }
-  } else if (packageValue === 'ironing') {
-    const pcs = parseFloat(ironPcsUpdate.value) || 0;
-    totalPrice = pcs * 1;
-    breakdown = `$${totalPrice} (${pcs}pcs × $1)`;
+  const packageType = document.getElementById("pricingServiceUpdate").value;
+  let price = 0;
+  let breakdown = "";
+  
+  if (packageType === "jimat") {
+    const plan = document.getElementById("jimatPlanUpdate").value;
+    price = parseFloat(plan) || 0;
+    breakdown = `Jimat Plan: $${price}`;
+  } else if (packageType === "wash") {
+    const kg = parseFloat(document.getElementById("washKgUpdate").value) || 0;
+    price = kg * 1.5; // $1.50 per kg
+    breakdown = `Wash: ${kg}kg × $1.50 = $${price.toFixed(2)}`;
+  } else if (packageType === "folding") {
+    const kg = parseFloat(document.getElementById("foldKgUpdate").value) || 0;
+    price = kg * 1.0; // $1.00 per kg
+    breakdown = `Folding: ${kg}kg × $1.00 = $${price.toFixed(2)}`;
+  } else if (packageType === "ironing") {
+    const pcs = parseFloat(document.getElementById("ironPcsUpdate").value) || 0;
+    price = pcs * 1.0; // $1.00 per piece
+    breakdown = `Ironing: ${pcs}pcs × $1.00 = $${price.toFixed(2)}`;
   }
-
-  totalPriceUpdateEl.textContent = `$${totalPrice}`;
-  document.getElementById('priceBreakdownUpdate').textContent = breakdown;
+  
+  // Update the price display
+  document.getElementById("totalPriceUpdate").textContent = `$${price.toFixed(2)}`;
+  document.getElementById("priceBreakdownUpdate").textContent = breakdown;
 }
 
 // Add event listeners for price calculation in update form
-if (membershipPlanUpdate) membershipPlanUpdate.addEventListener('change', calcPriceUpdate);
-if (jimatPlanUpdate) jimatPlanUpdate.addEventListener('change', calcPriceUpdate);
-if (washKgUpdate) washKgUpdate.addEventListener('input', calcPriceUpdate);
-if (foldKgUpdate) foldKgUpdate.addEventListener('input', calcPriceUpdate);
-if (ironPcsUpdate) ironPcsUpdate.addEventListener('input', calcPriceUpdate);
+document.getElementById("jimatPlanUpdate").addEventListener("change", calcPriceUpdate);
+document.getElementById("washKgUpdate").addEventListener("input", calcPriceUpdate);
+document.getElementById("foldKgUpdate").addEventListener("input", calcPriceUpdate);
+document.getElementById("ironPcsUpdate").addEventListener("input", calcPriceUpdate);
 
-// Initialize form
-hideAllPricingCustomer();
-hideAllPricingUpdate();
-
-// ===== NEW: AJAX FORM SUBMISSION =====
+// Form submission
 document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
-  e.preventDefault(); // Prevent default form submission
+  e.preventDefault();
   
-  // Format date fields before submission
-  if (document.getElementById('singleDateTime') && document.getElementById('singleDateTime').value) {
-    document.getElementById('singleDateFormatted').value = getBruneiFormattedDateTime('singleDateTime');
-  }
-  if (document.getElementById('pickupDate') && document.getElementById('pickupDate').value) {
-    document.getElementById('pickupDateFormatted').value = getBruneiFormattedDateTime('pickupDate');
-  }
-  if (document.getElementById('deliveryDate') && document.getElementById('deliveryDate').value) {
-    document.getElementById('deliveryDateFormatted').value = getBruneiFormattedDateTime('deliveryDate');
+  // Validate form based on type
+  const isCustomerForm = formMode.value === 'customer';
+  const isUpdateForm = formMode.value === 'update';
+  
+  // Validate business hours for customer form
+  if (isCustomerForm) {
+    let dateTimeValid = true;
+    let errorMessage = "";
+    
+    if (serviceSelect.value === 'Pick Up Only') {
+      if (!isWithinBusinessHours('singleDateTime', 'pickup')) {
+        dateTimeValid = false;
+        errorMessage = "Pick Up time must be within business hours:\nMon-Fri: 8:30 AM - 4:30 PM\nSat: 8:30 AM - 11:30 AM";
+      }
+    } else if (serviceSelect.value === 'Delivery Only') {
+      if (!isWithinBusinessHours('singleDateTime', 'delivery')) {
+        dateTimeValid = false;
+        errorMessage = "Delivery time must be within business hours:\nMon-Fri: 8:30 AM - 4:30 PM\nSat: 8:30 AM - 11:30 AM";
+      }
+    } else if (serviceSelect.value === 'Pick Up & Delivery') {
+      if (!isWithinBusinessHours('pickupDate', 'pickup')) {
+        dateTimeValid = false;
+        errorMessage = "Pick Up time must be within business hours:\nMon-Fri: 8:30 AM - 4:30 PM\nSat: 8:30 AM - 11:30 AM";
+      } else if (!sameAsPickup.checked && !isWithinBusinessHours('deliveryDate', 'delivery')) {
+        dateTimeValid = false;
+        errorMessage = "Delivery time must be within business hours:\nMon-Fri: 8:30 AM - 4:30 PM\nSat: 8:30 AM - 11:30 AM";
+      }
+    }
+    
+    if (!dateTimeValid) {
+      alert(errorMessage);
+      return false;
+    }
   }
   
-  // Validate datetime inputs
-  if (!validateDateTimeInputs()) {
-    return;
+  // Format dates for submission
+  if (isCustomerForm) {
+    if (serviceSelect.value === 'Pick Up Only' || serviceSelect.value === 'Delivery Only') {
+      document.getElementById('singleDateFormatted').value = getBruneiFormattedDateTime('singleDateTime');
+    } else if (serviceSelect.value === 'Pick Up & Delivery') {
+      document.getElementById('pickupDateFormatted').value = getBruneiFormattedDateTime('pickupDate');
+      if (!sameAsPickup.checked) {
+        document.getElementById('deliveryDateFormatted').value = getBruneiFormattedDateTime('deliveryDate');
+      }
+    }
   }
   
-  // Create form data object
+  // Prepare form data
   const formData = new FormData(this);
   
+  // Add form type to data
+  formData.append('formType', formMode.value);
+  
+  // Add hidden address field value to form data in update form
+  if (isUpdateForm) {
+    formData.append('addressWorker', addressWorker.value);
+  }
+  
   try {
-    // Show loading state (optional)
-    const submitBtn = this.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = 'Submitting...';
-    submitBtn.disabled = true;
-    
-    // Send data via AJAX
-    const response = await fetch('https://risetotop.app.n8n.cloud/webhook-test/uw-admin', {
+    // Send data to Google Apps Script
+    const response = await fetch('https://script.google.com/macros/s/AKfycbwRk-T3xGVFx0PzQSXqJ9piRLk8tXUWzcyDDHOfCxDuhLJ1V2PAPt87LETLZ1ZkbpnZmA/exec', {
       method: 'POST',
       body: formData
     });
     
-    // Check if the response is OK
-    if (response.ok) {
-      // Show success message
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      // Show success popup
       document.getElementById('thankYouPopup').style.display = 'flex';
     } else {
-      // Handle error response
-      throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+      alert('Error submitting form: ' + result.message);
     }
-    
   } catch (error) {
-    // Handle any errors
-    console.error('Submission error:', error);
-    alert('There was an error submitting the form. Please try again.');
-  } finally {
-    // Restore button state (if needed)
-    const submitBtn = this.querySelector('button[type="submit"]');
-    if (submitBtn) {
-      submitBtn.textContent = 'Submit';
-      submitBtn.disabled = false;
-    }
+    console.error('Error:', error);
+    alert('Error submitting form. Please try again.');
   }
 });
-
-// Initialize business hours validation
-addBusinessHoursValidation();
 </script>
 </body>
 </html>
