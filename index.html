@@ -387,8 +387,7 @@ textarea::placeholder {
     <input id="customerPhoneWorker" name="customerPhoneWorker" type="hidden" />
 
     <!-- Hidden Backend Address (for backend only) -->
-    <input id="backendAddress" name="locationAddress" type="hidden" class="backend-address" />
-
+    <input id="backendAddress" name="backendAddress" type="hidden" />
     <label for="mapLinkWorker">Map Link</label>
     <input id="mapLinkWorker" name="mapLinkWorker" type="text" readonly placeholder="Auto-filled from Customer Data" class="auto-filled" />
 
@@ -710,7 +709,7 @@ function populateCustomDropdown(customers) {
       document.getElementById("serviceWorker").value = this.dataset.service || "";
       document.getElementById("customerNameWorker").value = this.dataset.name || "";
       document.getElementById("customerPhoneWorker").value = this.dataset.phone || "";
-      document.getElementById("backendAddress").value = this.dataset.address || ""; // Set hidden backend address
+      document.getElementById("backendAddress").value = this.dataset.address || "";
       
       // Auto-fill service package and pricing details
       if (this.dataset.package) {
@@ -1099,5 +1098,6 @@ addBusinessHoursValidation();
 </script>
 </body>
 </html>
+
 
 
