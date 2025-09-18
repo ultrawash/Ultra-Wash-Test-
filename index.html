@@ -951,42 +951,49 @@ function calcPriceUpdate() {
   let totalPrice = 0;
   let breakdown = '';
 
-  if(packageValue==='membership') {
+  if (packageValue === 'membership') {
     const plan = membershipPlanUpdate.value;
-    if(plan==='120-12-60') { totalPrice = 120; breakdown = '$120 (12 trips, 60kg)'; }
-    if(plan==='100-2-50') { totalPrice = 100; breakdown = '$100 (2x/week, max 50kg)'; }
-  } else if(packageValue==='jimat') {
+    if (plan === '120-12-60') { totalPrice = 120; breakdown = '$120 (12 trips, 60kg)'; }
+    if (plan === '100-2-50') { totalPrice = 100; breakdown = '$100 (2x/week, max 50kg)'; }
+  } else if (packageValue === 'jimat') {
     const plan = jimatPlanUpdate.value;
-    if(plan==='16') { totalPrice = 16; breakdown = '$16 (1 box)'; }
-    if(plan==='28') { totalPrice = 28; breakdown = '$28 (2 boxes)'; }
-    if(plan==='40') { totalPrice = 40; breakdown = '$40 (4 boxes)'; }
+    if (plan === '16') { totalPrice = 16; breakdown = '$16 (1 box)'; }
+    if (plan === '28') { totalPrice = 28; breakdown = '$28 (2 boxes)'; }
+    if (plan === '40') { totalPrice = 40; breakdown = '$40 (4 boxes)'; }
   } else if (packageValue === 'wash') {
     const kg = parseFloat(washKgUpdate.value) || 0;
-    if (kg <= 5) {
+    if (kg <= 0) {
+      totalPrice = 0;
+      breakdown = '';
+    } else if (kg <= 5) {
       totalPrice = 10;
       breakdown = `$10 (up to 5kg)`;
-    } else if (kg < 8) {
-      // 6 or 7kg
-      const addOnKg = kg - 5;
-      const addOn = addOnKg * 1.2;
-      totalPrice = 10 + addOn;
-      breakdown = `$10 (5kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
-    } else if (kg === 8) {
-      totalPrice = 12;
-      breakdown = `$12 (8kg)`;
+    } else if (kg > 5 && kg <= 8) {
+      const extraKg = Math.ceil(kg - 5);
+      if (kg > 8) {
+        totalPrice = 12;
+        breakdown = `$12 (up to 8kg)`;
+      } else {
+        totalPrice = 10 + extraKg * 1.2;
+        breakdown = `$10 (5kg) + $${(extraKg * 1.2).toFixed(2)} add-on (${extraKg}kg × $1.20)`;
+        if (kg === 8) {
+          totalPrice = 12;
+          breakdown = `$12 (up to 8kg)`;
+        }
+      }
     } else if (kg > 8 && kg <= 13) {
-      // 9–13kg
-      const addOnKg = kg - 8;
-      const addOn = addOnKg * 1.2;
-      totalPrice = 12 + addOn;
-      breakdown = `$12 (8kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
+      const extraKg = Math.ceil(kg - 8);
+      totalPrice = 12 + extraKg * 1.2;
+      breakdown = `$12 (8kg) + $${(extraKg * 1.2).toFixed(2)} add-on (${extraKg}kg × $1.20)`;
+      if (kg === 13) {
+        totalPrice = 16;
+        breakdown = `$16 (up to 13kg)`;
+      }
     } else if (kg > 13) {
-      // Above 13kg
-      const addOnKg = kg - 13;
-      const base = 12 + (5 * 1.2); // $12 + (5kg × $1.20) = $18.00 for 13kg
-      const addOn = addOnKg * 1.2;
-      totalPrice = base + addOn;
-      breakdown = `$18.00 (13kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
+      const extraKg = Math.ceil(kg - 13);
+      const addOn = extraKg * 1.2;
+      totalPrice = 16 + addOn;
+      breakdown = `$16 (13kg) + $${addOn.toFixed(2)} add-on (${extraKg}kg × $1.20)`;
     }
   } else if (packageValue === 'folding') {
     const kg = parseFloat(foldKgUpdate.value) || 0;
@@ -997,13 +1004,10 @@ function calcPriceUpdate() {
       totalPrice = 2;
       breakdown = `$2 (6/7kg, still $2)`;
     } else if (kg > 7) {
-      // Add-on: $1 per every even 2kg above 7kg
-      // Only even numbers count, odd kg does not add add-on
       const addOnBlocks = Math.floor((kg - 7) / 2);
       const addOn = addOnBlocks * 1;
       totalPrice = 2 + addOn;
       breakdown = `$2 (7kg) + $${addOn} add-on (${addOnBlocks * 2}kg × $1/2kg)`;
-      // For odd kg (e.g. 9kg), the extra kg does not count for add-on
     }
   } else if (packageValue === 'ironing') {
     const pcs = parseFloat(ironPcsUpdate.value) || 0;
@@ -1011,7 +1015,7 @@ function calcPriceUpdate() {
     breakdown = `$${totalPrice} (${pcs}pcs × $1)`;
   }
 
-  totalPriceUpdateEl.textContent = `$${totalPrice}`;
+  totalPriceUpdateEl.textContent = `$${totalPrice.toFixed(2)}`;
   document.getElementById('priceBreakdownUpdate').textContent = breakdown;
 }
 
@@ -1090,3 +1094,4 @@ addBusinessHoursValidation();
 </script>
 </body>
 </html>
+
