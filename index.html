@@ -376,9 +376,6 @@ button[type="submit"]:hover { background-color: #e05343; }
 
     <!-- Hidden Phone Number (for backend only) -->
     <input id="customerPhoneWorker" name="customerPhoneWorker" type="hidden" />
-    
-    <!-- NEW: Hidden Location Address (for backend only) -->
-    <input id="customerLocationAddress" name="customerLocationAddress" type="hidden" />
 
     <!-- Hidden Backend Address (for backend only) -->
     <input id="backendAddress" name="backendAddress" type="hidden" class="backend-address" />
@@ -705,9 +702,6 @@ function populateCustomDropdown(customers) {
       document.getElementById("customerNameWorker").value = this.dataset.name || "";
       document.getElementById("customerPhoneWorker").value = this.dataset.phone || "";
       document.getElementById("backendAddress").value = this.dataset.address || ""; // Set hidden backend address
-      
-      // NEW: Set the customer's location address
-      document.getElementById("customerLocationAddress").value = this.dataset.address || "";
       
       // Auto-fill service package and pricing details
       if (this.dataset.package) {
