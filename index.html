@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ultra Wash Appointment Form</title>
+<title>Ultra Wash Customer Form</title>
 <style>
 :root {
   --font-family: 'Open Sans', sans-serif;
@@ -252,13 +252,22 @@ button[type="submit"]:hover { background-color: #e05343; }
 .backend-address {
   display: none !important;
 }
+  
+  /* Add your placeholder fix here! */
+input::placeholder,
+textarea::placeholder {
+  font-family: var(--font-family);
+  font-size: var(--font-size-input);
+  color: #bbb;
+  opacity: 1;
+}
 </style>
 </head>
 <body>
 
 <!-- Remove the action attribute and let JavaScript handle submission -->
 <form id="appointmentForm" novalidate>
-  <h1>Ultra Wash Appointment</h1>
+  <h1>Ultra Wash Customer Form</h1>
 
   <!-- Form Type Selection -->
   <label for="formMode">Form Type</label>
@@ -1090,3 +1099,4 @@ addBusinessHoursValidation();
 </script>
 </body>
 </html>
+
