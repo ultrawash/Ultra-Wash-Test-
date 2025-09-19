@@ -462,6 +462,9 @@ textarea::placeholder {
 
     <label for="totalItems">Total Items</label>
     <input id="totalItems" name="totalItems" type="number" min="1" placeholder="Enter total items" required />
+    <!-- Add these hidden fields for calculation results -->
+  <input type="hidden" id="calculatedTotalPrice" name="calculatedTotalPrice" />
+  <input type="hidden" id="calculatedPriceBreakdown" name="calculatedPriceBreakdown" />
   </div>
 
   <button type="submit">Submit</button>
@@ -1021,8 +1024,12 @@ function calcPriceUpdate() {
 
   totalPriceUpdateEl.textContent = `$${totalPrice}`;
   document.getElementById('priceBreakdownUpdate').textContent = breakdown;
-}
 
+  // Set values in hidden fields for backend submission
+  document.getElementById('calculatedTotalPrice').value = totalPrice;
+  document.getElementById('calculatedPriceBreakdown').value = breakdown;
+}
+  
 // Add event listeners for price calculation in update form
 if (membershipPlanUpdate) membershipPlanUpdate.addEventListener('change', calcPriceUpdate);
 if (jimatPlanUpdate) jimatPlanUpdate.addEventListener('change', calcPriceUpdate);
@@ -1098,6 +1105,7 @@ addBusinessHoursValidation();
 </script>
 </body>
 </html>
+
 
 
 
