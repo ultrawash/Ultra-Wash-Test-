@@ -253,13 +253,34 @@ button[type="submit"]:hover { background-color: #e05343; }
   display: none !important;
 }
   
-  /* Add your placeholder fix here! */
+/* Add your placeholder fix here! */
 input::placeholder,
 textarea::placeholder {
   font-family: var(--font-family);
   font-size: var(--font-size-input);
   color: #bbb;
   opacity: 1;
+}
+
+/* Additional Services Styling */
+.additional-services {
+  margin-top: 16px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: var(--radius);
+  border-left: 4px solid #4a90e2;
+}
+
+.additional-services h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: #2c3e50;
+}
+
+.service-details {
+  margin-left: 20px;
+  margin-bottom: 12px;
 }
 </style>
 </head>
@@ -317,8 +338,20 @@ textarea::placeholder {
       </select>
     </div>
 
-    <!-- Static Price Display (No Live Calculation) -->
-    <div class="note"><strong>Price will be calculated after selection</strong></div>
+    <!-- Multiple Service Selection -->
+    <div id="additionalServices" class="additional-services" style="display:none;">
+      <h3>Additional Services</h3>
+      
+      <div style="margin-bottom: 12px;">
+        <input type="checkbox" id="addFolding" name="addFolding">
+        <label for="addFolding" class="small-checkbox-label">Add Folding Service</label>
+      </div>
+      
+      <div style="margin-bottom: 12px;">
+        <input type="checkbox" id="addIroning" name="addIroning">
+        <label for="addIroning" class="small-checkbox-label">Add Ironing Service</label>
+      </div>
+    </div>
 
     <label for="service">Service</label>
     <select id="service" name="service" required>
@@ -422,19 +455,32 @@ textarea::placeholder {
       </select>
     </div>
 
+    <!-- Weight Input Fields for Update Form -->
     <div id="washFieldsUpdate" style="display:none;">
-      <label for="washKgUpdate">Weight (kg)</label>
+      <label for="washKgUpdate">Weight for Wash Service (kg)</label>
       <input type="number" id="washKgUpdate" name="washKgUpdate" min="1" step="1" required />
     </div>
 
     <div id="foldingFieldsUpdate" style="display:none;">
-      <label for="foldKgUpdate">Weight (kg)</label>
+      <label for="foldKgUpdate">Weight for Folding Service (kg)</label>
       <input type="number" id="foldKgUpdate" name="foldKgUpdate" min="1" step="1" required />
     </div>
 
     <div id="ironingFieldsUpdate" style="display:none;">
-      <label for="ironPcsUpdate">Number of Pieces</label>
+      <label for="ironPcsUpdate">Number of Pieces for Ironing</label>
       <input type="number" id="ironPcsUpdate" name="ironPcsUpdate" min="1" step="1" required />
+    </div>
+
+    <!-- Additional Folding Service (if selected in customer form) -->
+    <div id="additionalFoldingUpdate" style="display:none;">
+      <label for="foldKgUpdateAdd">Weight for Additional Folding Service (kg)</label>
+      <input type="number" id="foldKgUpdateAdd" name="foldKgUpdateAdd" min="1" step="1" />
+    </div>
+
+    <!-- Additional Ironing Service (if selected in customer form) -->
+    <div id="additionalIroningUpdate" style="display:none;">
+      <label for="ironPcsUpdateAdd">Number of Pieces for Additional Ironing</label>
+      <input type="number" id="ironPcsUpdateAdd" name="ironPcsUpdateAdd" min="1" step="1" />
     </div>
 
     <!-- Membership Usage Tracking (Only shown for membership customers) -->
@@ -462,9 +508,10 @@ textarea::placeholder {
 
     <label for="totalItems">Total Items</label>
     <input id="totalItems" name="totalItems" type="number" min="1" placeholder="Enter total items" required />
+    
     <!-- Add these hidden fields for calculation results -->
-  <input type="hidden" id="calculatedTotalPrice" name="calculatedTotalPrice" />
-  <input type="hidden" id="calculatedPriceBreakdown" name="calculatedPriceBreakdown" />
+    <input type="hidden" id="calculatedTotalPrice" name="calculatedTotalPrice" />
+    <input type="hidden" id="calculatedPriceBreakdown" name="calculatedPriceBreakdown" />
   </div>
 
   <button type="submit">Submit</button>
@@ -687,7 +734,8 @@ function populateCustomDropdown(customers) {
     option.dataset.phone = cust["Phone"];
     option.dataset.package = cust["Service Package"] || "";
     option.dataset.plan = cust["Plan Details"] || "";
-    option.dataset.quantity = cust["Quantity"] || "";
+    option.dataset.addFolding = cust["addFolding"] || "";
+    option.dataset.addIroning = cust["addIroning"] || "";
     
     option.addEventListener('click', function() {
       // Update selected value
@@ -745,12 +793,19 @@ function populateCustomDropdown(customers) {
           document.getElementById("membershipPlanUpdate").value = this.dataset.plan;
         } else if (packageValue === "jimat" && this.dataset.plan) {
           document.getElementById("jimatPlanUpdate").value = this.dataset.plan;
-        } else if (packageValue === "wash" && this.dataset.quantity) {
-          document.getElementById("washKgUpdate").value = this.dataset.quantity;
-        } else if (packageValue === "folding" && this.dataset.quantity) {
-          document.getElementById("foldKgUpdate").value = this.dataset.quantity;
-        } else if (packageValue === "ironing" && this.dataset.quantity) {
-          document.getElementById("ironPcsUpdate").value = this.dataset.quantity;
+        }
+        
+        // Show additional services if selected in customer form
+        if (this.dataset.addFolding === "on") {
+          document.getElementById("additionalFoldingUpdate").style.display = "block";
+        } else {
+          document.getElementById("additionalFoldingUpdate").style.display = "none";
+        }
+        
+        if (this.dataset.addIroning === "on") {
+          document.getElementById("additionalIroningUpdate").style.display = "block";
+        } else {
+          document.getElementById("additionalIroningUpdate").style.display = "none";
         }
         
         // Calculate price after auto-filling (for non-membership packages)
@@ -763,6 +818,8 @@ function populateCustomDropdown(customers) {
         document.getElementById("pricingServiceUpdate").value = "";
         document.getElementById("membershipUsageSection").style.display = "none";
         document.getElementById("pricingDetailsUpdate").style.display = "none";
+        document.getElementById("additionalFoldingUpdate").style.display = "none";
+        document.getElementById("additionalIroningUpdate").style.display = "none";
         hideAllPricingUpdate();
       }
     });
@@ -917,14 +974,26 @@ const jimatFields = document.getElementById('jimatFields');
 
 // Hide all pricing fields initially
 function hideAllPricingCustomer() {
-  [membershipFields, jimatFields].forEach(div => div.style.display = 'none');
+  [membershipFields, jimatFields, document.getElementById('additionalServices')].forEach(div => {
+    if (div) div.style.display = 'none';
+  });
 }
 
-// Show only membership and jimat fields for customer form
+// Toggle additional services section and show appropriate fields
 pricingService.addEventListener('change', () => {
   hideAllPricingCustomer();
-  if(pricingService.value==='membership') membershipFields.style.display='block';
-  if(pricingService.value==='jimat') jimatFields.style.display='block';
+  const additionalServices = document.getElementById('additionalServices');
+  
+  if (pricingService.value === 'membership') {
+    membershipFields.style.display = 'block';
+    additionalServices.style.display = 'none';
+  } else if (pricingService.value === 'jimat') {
+    jimatFields.style.display = 'block';
+    additionalServices.style.display = 'none';
+  } else {
+    // For wash, folding, ironing - show additional services
+    additionalServices.style.display = 'block';
+  }
 });
 
 // === Pricing logic for Update Form ===
@@ -939,6 +1008,8 @@ const jimatPlanUpdate = document.getElementById('jimatPlanUpdate');
 const washKgUpdate = document.getElementById('washKgUpdate');
 const foldKgUpdate = document.getElementById('foldKgUpdate');
 const ironPcsUpdate = document.getElementById('ironPcsUpdate');
+const foldKgUpdateAdd = document.getElementById('foldKgUpdateAdd');
+const ironPcsUpdateAdd = document.getElementById('ironPcsUpdateAdd');
 
 // Hide all pricing fields for update form
 function hideAllPricingUpdate() {
@@ -956,78 +1027,114 @@ function showPricingFieldsUpdate() {
   if(packageValue==='ironing') ironingFieldsUpdate.style.display='block';
 }
 
-// Calculate price for update form
+// Calculate price for update form with multiple services
 function calcPriceUpdate() {
   const packageValue = document.getElementById('pricingServiceUpdate').value;
   let totalPrice = 0;
-  let breakdown = '';
+  let breakdown = [];
 
+  // Main service pricing
   if(packageValue==='membership') {
     const plan = membershipPlanUpdate.value;
-    if(plan==='120-12-60') { totalPrice = 120; breakdown = '$120 (12 trips, 60kg)'; }
-    if(plan==='100-2-50') { totalPrice = 100; breakdown = '$100 (2x/week, max 50kg)'; }
+    if(plan==='120-12-60') { 
+      totalPrice = 120; 
+      breakdown.push('$120 (12 trips, 60kg)'); 
+    }
+    if(plan==='100-2-50') { 
+      totalPrice = 100; 
+      breakdown.push('$100 (2x/week, max 50kg)'); 
+    }
   } else if(packageValue==='jimat') {
     const plan = jimatPlanUpdate.value;
-    if(plan==='16') { totalPrice = 16; breakdown = '$16 (1 box)'; }
-    if(plan==='28') { totalPrice = 28; breakdown = '$28 (2 boxes)'; }
-    if(plan==='40') { totalPrice = 40; breakdown = '$40 (4 boxes)'; }
+    if(plan==='16') { 
+      totalPrice = 16; 
+      breakdown.push('$16 (1 box)'); 
+    }
+    if(plan==='28') { 
+      totalPrice = 28; 
+      breakdown.push('$28 (2 boxes)'); 
+    }
+    if(plan==='40') { 
+      totalPrice = 40; 
+      breakdown.push('$40 (4 boxes)'); 
+    }
   } else if (packageValue === 'wash') {
     const kg = parseFloat(washKgUpdate.value) || 0;
     if (kg <= 5) {
-      totalPrice = 10;
-      breakdown = `$10 (up to 5kg)`;
+      totalPrice += 10;
+      breakdown.push('$10 (up to 5kg)');
     } else if (kg < 8) {
       // 6 or 7kg
       const addOnKg = kg - 5;
       const addOn = addOnKg * 1.2;
-      totalPrice = 10 + addOn;
-      breakdown = `$10 (5kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
+      totalPrice += 10 + addOn;
+      breakdown.push(`$10 (5kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`);
     } else if (kg === 8) {
-      totalPrice = 12;
-      breakdown = `$12 (8kg)`;
-    } else if (kg > 8 && kg <= 13) {
-      // 9–13kg
+      totalPrice += 12;
+      breakdown.push(`$12 (8kg)`);
+    } else if (kg > 8 && kg < 13) {
+      // 9–12kg
       const addOnKg = kg - 8;
       const addOn = addOnKg * 1.2;
-      totalPrice = 12 + addOn;
-      breakdown = `$12 (8kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
+      totalPrice += 12 + addOn;
+      breakdown.push(`$12 (8kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`);
+    } else if (kg === 13) {
+      totalPrice += 16;
+      breakdown.push(`$16 (13kg)`);
     } else if (kg > 13) {
-      // Above 13kg
+      // Above 13kg - CORRECTED: $16 for 13kg + $1.20/kg for additional
       const addOnKg = kg - 13;
-      const base = 12 + (5 * 1.2); // $12 + (5kg × $1.20) = $18.00 for 13kg
       const addOn = addOnKg * 1.2;
-      totalPrice = base + addOn;
-      breakdown = `$18.00 (13kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`;
+      totalPrice += 16 + addOn;
+      breakdown.push(`$16 (13kg) + $${addOn.toFixed(2)} add-on (${addOnKg}kg × $1.20)`);
     }
   } else if (packageValue === 'folding') {
     const kg = parseFloat(foldKgUpdate.value) || 0;
-    if (kg <= 5) {
-      totalPrice = 2;
-      breakdown = `$2 (up to 5kg)`;
-    } else if (kg === 6 || kg === 7) {
-      totalPrice = 2;
-      breakdown = `$2 (6/7kg, still $2)`;
-    } else if (kg > 7) {
-      // Add-on: $1 per every even 2kg above 7kg
-      // Only even numbers count, odd kg does not add add-on
+    if (kg <= 7) {
+      totalPrice += 2;
+      breakdown.push('$2 (Folding up to 7kg)');
+    } else {
       const addOnBlocks = Math.floor((kg - 7) / 2);
       const addOn = addOnBlocks * 1;
-      totalPrice = 2 + addOn;
-      breakdown = `$2 (7kg) + $${addOn} add-on (${addOnBlocks * 2}kg × $1/2kg)`;
-      // For odd kg (e.g. 9kg), the extra kg does not count for add-on
+      totalPrice += 2 + addOn;
+      breakdown.push(`$2 (Folding 7kg) + $${addOn} add-on (${addOnBlocks * 2}kg × $1/2kg)`);
     }
   } else if (packageValue === 'ironing') {
     const pcs = parseFloat(ironPcsUpdate.value) || 0;
-    totalPrice = pcs * 1;
-    breakdown = `$${totalPrice} (${pcs}pcs × $1)`;
+    totalPrice += pcs * 1;
+    breakdown.push(`$${pcs * 1} (Ironing ${pcs}pcs × $1)`);
+  }
+  
+  // Additional services for update form (if customer selected them)
+  if (document.getElementById('additionalFoldingUpdate').style.display === 'block') {
+    const kg = parseFloat(foldKgUpdateAdd.value) || 0;
+    if (kg > 0) {
+      if (kg <= 7) {
+        totalPrice += 2;
+        breakdown.push('$2 (Additional Folding)');
+      } else {
+        const addOnBlocks = Math.floor((kg - 7) / 2);
+        const addOn = addOnBlocks * 1;
+        totalPrice += 2 + addOn;
+        breakdown.push(`$2 (Additional Folding 7kg) + $${addOn} add-on`);
+      }
+    }
+  }
+  
+  if (document.getElementById('additionalIroningUpdate').style.display === 'block') {
+    const pcs = parseFloat(ironPcsUpdateAdd.value) || 0;
+    if (pcs > 0) {
+      totalPrice += pcs * 1;
+      breakdown.push(`$${pcs * 1} (Additional Ironing)`);
+    }
   }
 
-  totalPriceUpdateEl.textContent = `$${totalPrice}`;
-  document.getElementById('priceBreakdownUpdate').textContent = breakdown;
+  totalPriceUpdateEl.textContent = `$${totalPrice.toFixed(2)}`;
+  document.getElementById('priceBreakdownUpdate').textContent = breakdown.join(' + ');
 
   // Set values in hidden fields for backend submission
-  document.getElementById('calculatedTotalPrice').value = totalPrice;
-  document.getElementById('calculatedPriceBreakdown').value = breakdown;
+  document.getElementById('calculatedTotalPrice').value = totalPrice.toFixed(2);
+  document.getElementById('calculatedPriceBreakdown').value = breakdown.join(' + ');
 }
   
 // Add event listeners for price calculation in update form
@@ -1036,6 +1143,8 @@ if (jimatPlanUpdate) jimatPlanUpdate.addEventListener('change', calcPriceUpdate)
 if (washKgUpdate) washKgUpdate.addEventListener('input', calcPriceUpdate);
 if (foldKgUpdate) foldKgUpdate.addEventListener('input', calcPriceUpdate);
 if (ironPcsUpdate) ironPcsUpdate.addEventListener('input', calcPriceUpdate);
+if (foldKgUpdateAdd) foldKgUpdateAdd.addEventListener('input', calcPriceUpdate);
+if (ironPcsUpdateAdd) ironPcsUpdateAdd.addEventListener('input', calcPriceUpdate);
 
 // Initialize form
 hideAllPricingCustomer();
@@ -1072,7 +1181,7 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
     submitBtn.disabled = true;
     
     // Send data via AJAX
-    const response = await fetch('https://risetotop.app.n8n.cloud/webhook-test/uw-admin', {
+    const response = await fetch('https://risetotop.app.n8n.cloud/webhook/uw-admin', {
       method: 'POST',
       body: formData
     });
@@ -1105,16 +1214,3 @@ addBusinessHoursValidation();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
